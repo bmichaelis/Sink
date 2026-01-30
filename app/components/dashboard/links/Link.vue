@@ -1,6 +1,6 @@
 <script setup>
 import { useClipboard } from '@vueuse/core'
-import { CalendarPlus2, Copy, CopyCheck, Eraser, Hourglass, Link as LinkIcon, QrCode, SquareChevronDown, SquarePen } from 'lucide-vue-next'
+import { CalendarPlus2, Copy, CopyCheck, Eraser, FileText, Hourglass, Link as LinkIcon, QrCode, SquareChevronDown, SquarePen } from 'lucide-vue-next'
 import { parseURL } from 'ufo'
 import { toast } from 'vue-sonner'
 import QRCode from './QRCode.vue'
@@ -19,12 +19,25 @@ const editPopoverOpen = ref(false)
 const { host, origin } = location
 
 function getLinkHost(url) {
+  if (!url)
+    return null
   const { host } = parseURL(url)
   return host
 }
 
+const isTextLink = computed(() => props.link.type === 'text' || (props.link.content && !props.link.url))
 const shortLink = computed(() => `${origin}/${props.link.slug}`)
-const linkIcon = computed(() => `https://unavatar.io/${getLinkHost(props.link.url)}?fallback=https://sink.cool/icon.png`)
+const linkIcon = computed(() => {
+  if (isTextLink.value)
+    return '/icon.png'
+  return `https://unavatar.io/${getLinkHost(props.link.url)}?fallback=https://sink.cool/icon.png`
+})
+
+const contentPreview = computed(() => {
+  if (!props.link.content)
+    return ''
+  return props.link.content.slice(0, 100) + (props.link.content.length > 100 ? '...' : '')
+})
 
 const { copy, copied } = useClipboard({ source: shortLink.value, copiedDuring: 400 })
 
@@ -95,7 +108,11 @@ function copyLink() {
           </TooltipProvider>
         </div>
 
+        <template v-if="isTextLink">
+          <FileText class="w-5 h-5 text-muted-foreground" />
+        </template>
         <a
+          v-else
           :href="link.url"
           target="_blank"
           rel="noopener noreferrer"
@@ -187,7 +204,7 @@ function copyLink() {
           </TooltipProvider>
         </template>
         <Separator orientation="vertical" />
-        <span class="truncate">{{ link.url }}</span>
+        <span class="truncate">{{ isTextLink ? contentPreview : link.url }}</span>
       </div>
     </NuxtLink>
   </Card>

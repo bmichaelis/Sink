@@ -151,6 +151,11 @@
     }
   },
   "links": {
+    "type": "連結類型",
+    "type_redirect": "跳轉到URL",
+    "type_text": "顯示文字",
+    "content": "內容",
+    "content_placeholder": "輸入 Markdown 內容...",
     "create": "創建連結",
     "edit": "編輯連結",
     "delete_confirm_title": "確定要刪除嗎？",

@@ -151,6 +151,11 @@
     }
   },
   "links": {
+    "type": "Loại liên kết",
+    "type_redirect": "Chuyển hướng đến URL",
+    "type_text": "Hiển thị văn bản",
+    "content": "Nội dung",
+    "content_placeholder": "Nhập nội dung markdown...",
     "create": "Tạo liên kết",
     "edit": "Chỉnh sửa liên kết",
     "delete_confirm_title": "Bạn có chắc chắn không?",

@@ -1,6 +1,6 @@
 <script setup>
 import { DependencyType } from '@/components/ui/auto-form/interface'
-import { LinkSchema, nanoid } from '@@/schemas/link'
+import { LinkSchema, LinkTypeEnum, nanoid } from '@@/schemas/link'
 import { toTypedSchema } from '@vee-validate/zod'
 import { Shuffle, Sparkles } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
@@ -22,13 +22,16 @@ const dialogOpen = ref(false)
 
 const isEdit = !!props.link.id
 
-const EditLinkSchema = LinkSchema.pick({
-  url: true,
-  slug: true,
-}).extend({
+const EditLinkSchema = z.object({
+  type: LinkTypeEnum.default('redirect'),
+  url: z.string().trim().url().max(2048).optional(),
+  content: z.string().trim().max(50000).optional(),
+  slug: LinkSchema.shape.slug,
   optional: LinkSchema.omit({
     id: true,
+    type: true,
     url: true,
+    content: true,
     slug: true,
     createdAt: true,
     updatedAt: true,
@@ -38,9 +41,35 @@ const EditLinkSchema = LinkSchema.pick({
   }).extend({
     expiration: z.coerce.date().optional(),
   }).optional(),
-})
+}).refine(
+  (data) => {
+    if (data.type === 'redirect')
+      return !!data.url
+    if (data.type === 'text')
+      return !!data.content
+    return true
+  },
+  {
+    message: 'URL is required for redirect links, content is required for text links',
+    path: ['url'],
+  },
+)
 
 const fieldConfig = {
+  type: {
+    label: t('links.type'),
+  },
+  url: {
+    label: 'URL',
+  },
+  content: {
+    label: t('links.content'),
+    component: 'textarea',
+    inputProps: {
+      placeholder: t('links.content_placeholder'),
+      rows: 8,
+    },
+  },
   slug: {
     disabled: isEdit,
   },
@@ -58,13 +87,27 @@ const dependencies = [
     targetField: 'slug',
     when: () => isEdit,
   },
+  {
+    sourceField: 'type',
+    type: DependencyType.HIDES,
+    targetField: 'url',
+    when: type => type === 'text',
+  },
+  {
+    sourceField: 'type',
+    type: DependencyType.HIDES,
+    targetField: 'content',
+    when: type => type === 'redirect',
+  },
 ]
 
 const form = useForm({
   validationSchema: toTypedSchema(EditLinkSchema),
   initialValues: {
+    type: link.value.type || 'redirect',
     slug: link.value.slug,
     url: link.value.url,
+    content: link.value.content,
     optional: {
       comment: link.value.comment,
     },
@@ -73,13 +116,15 @@ const form = useForm({
   keepValuesOnUnmount: isEdit,
 })
 
+const isTextType = computed(() => form.values.type === 'text')
+
 function randomSlug() {
   form.setFieldValue('slug', nanoid()())
 }
 
 const aiSlugPending = ref(false)
 async function aiSlug() {
-  if (!form.values.url)
+  if (!form.values.url || isTextType.value)
     return
 
   aiSlugPending.value = true
@@ -104,9 +149,11 @@ onMounted(() => {
 })
 
 async function onSubmit(formData) {
+  const isText = formData.type === 'text'
   const link = {
-    url: formData.url,
+    type: formData.type,
     slug: formData.slug,
+    ...(isText ? { content: formData.content } : { url: formData.url }),
     ...(formData.optional || []),
     expiration: formData.optional?.expiration ? date2unix(formData.optional?.expiration, 'end') : undefined,
   }
@@ -169,6 +216,7 @@ const { previewMode } = useRuntimeConfig().public
                 @click="randomSlug"
               />
               <Sparkles
+                v-if="!isTextType"
                 class="w-4 h-4 cursor-pointer"
                 :class="{ 'animate-bounce': aiSlugPending }"
                 @click="aiSlug"

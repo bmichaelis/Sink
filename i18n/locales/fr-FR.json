@@ -151,6 +151,11 @@
     }
   },
   "links": {
+    "type": "Type de lien",
+    "type_redirect": "Redirection vers URL",
+    "type_text": "Afficher le texte",
+    "content": "Contenu",
+    "content_placeholder": "Saisissez le contenu markdown...",
     "create": "Créer un lien",
     "edit": "Modifier le lien",
     "delete_confirm_title": "Êtes-vous absolument sûr ?",

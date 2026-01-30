@@ -151,6 +151,11 @@
     }
   },
   "links": {
+    "type": "链接类型",
+    "type_redirect": "跳转到URL",
+    "type_text": "显示文本",
+    "content": "内容",
+    "content_placeholder": "输入 Markdown 内容...",
     "create": "创建链接",
     "edit": "编辑链接",
     "delete_confirm_title": "确定要删除吗？",

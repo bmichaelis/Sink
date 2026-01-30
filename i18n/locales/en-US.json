@@ -151,6 +151,11 @@
     }
   },
   "links": {
+    "type": "Link Type",
+    "type_redirect": "Redirect to URL",
+    "type_text": "Display Text",
+    "content": "Content",
+    "content_placeholder": "Enter markdown content...",
     "create": "Create Link",
     "edit": "Edit Link",
     "delete_confirm_title": "Are you absolutely sure?",

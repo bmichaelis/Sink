@@ -7,9 +7,13 @@ const slugDefaultLength = +useRuntimeConfig().public.slugDefaultLength
 
 export const nanoid = (length: number = slugDefaultLength) => customAlphabet('23456789abcdefghjkmnpqrstuvwxyz', length)
 
+export const LinkTypeEnum = z.enum(['redirect', 'text'])
+
 export const LinkSchema = z.object({
   id: z.string().trim().max(26).default(nanoid(10)),
-  url: z.string().trim().url().max(2048),
+  type: LinkTypeEnum.default('redirect'),
+  url: z.string().trim().url().max(2048).optional(),
+  content: z.string().trim().max(50000).optional(),
   slug: z.string().trim().max(2048).regex(new RegExp(slugRegex)).default(nanoid()),
   comment: z.string().trim().max(2048).optional(),
   createdAt: z.number().int().safe().default(() => Math.floor(Date.now() / 1000)),
@@ -21,4 +25,16 @@ export const LinkSchema = z.object({
   title: z.string().trim().max(2048).optional(),
   description: z.string().trim().max(2048).optional(),
   image: z.string().trim().url().max(2048).optional(),
-})
+}).refine(
+  (data) => {
+    if (data.type === 'redirect')
+      return !!data.url
+    if (data.type === 'text')
+      return !!data.content
+    return true
+  },
+  {
+    message: 'URL is required for redirect links, content is required for text links',
+    path: ['url'],
+  },
+)

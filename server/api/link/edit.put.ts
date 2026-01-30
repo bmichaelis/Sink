@@ -21,6 +21,7 @@ export default eventHandler(async (event) => {
       id: existingLink.id, // don't update id
       createdAt: existingLink.createdAt, // don't update createdAt
       hitCount: existingLink.hitCount || 0, // preserve hit count
+      firstHitAt: existingLink.firstHitAt, // preserve first hit timestamp
       updatedAt: Math.floor(Date.now() / 1000),
     }
     const expiration = getExpiration(event, newLink.expiration)

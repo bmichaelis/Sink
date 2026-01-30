@@ -39,9 +39,11 @@ const EditLinkSchema = z.object({
     description: true,
     image: true,
     hitCount: true,
+    firstHitAt: true,
   }).extend({
     expiration: z.coerce.date().optional(),
     maxHits: z.coerce.number().int().positive().optional(),
+    viewExpireSeconds: z.coerce.number().int().positive().optional(),
   }).optional(),
 }).refine(
   (data) => {
@@ -87,6 +89,14 @@ const fieldConfig = {
         placeholder: t('links.max_hits_placeholder'),
       },
     },
+    viewExpireSeconds: {
+      label: t('links.view_expire_seconds'),
+      inputProps: {
+        type: 'number',
+        min: 1,
+        placeholder: t('links.view_expire_placeholder'),
+      },
+    },
   },
 }
 
@@ -108,6 +118,18 @@ const dependencies = [
     type: DependencyType.HIDES,
     targetField: 'content',
     when: type => type === 'redirect',
+  },
+  {
+    sourceField: 'type',
+    type: DependencyType.HIDES,
+    targetField: 'optional.viewExpireSeconds',
+    when: type => type !== 'text',
+  },
+  {
+    sourceField: 'optional.maxHits',
+    type: DependencyType.HIDES,
+    targetField: 'optional.viewExpireSeconds',
+    when: maxHits => maxHits !== 1,
   },
 ]
 
@@ -159,6 +181,9 @@ onMounted(() => {
   if (link.value.maxHits) {
     form.setFieldValue('optional.maxHits', link.value.maxHits)
   }
+  if (link.value.viewExpireSeconds) {
+    form.setFieldValue('optional.viewExpireSeconds', link.value.viewExpireSeconds)
+  }
 })
 
 async function onSubmit(formData) {
@@ -170,6 +195,7 @@ async function onSubmit(formData) {
     ...(formData.optional || []),
     expiration: formData.optional?.expiration ? date2unix(formData.optional?.expiration, 'end') : undefined,
     maxHits: formData.optional?.maxHits || undefined,
+    viewExpireSeconds: formData.optional?.viewExpireSeconds || undefined,
   }
   const { link: newLink } = await useAPI(isEdit ? '/api/link/edit' : '/api/link/create', {
     method: isEdit ? 'PUT' : 'POST',

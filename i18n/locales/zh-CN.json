@@ -184,6 +184,15 @@
       "az": "短链(A-Z)",
       "za": "短链(Z-A)",
       "tip": "体验功能: 仅对已经加载的链接有效"
-    }
+    },
+    "view_expire_seconds": "阅后即焚计时器（秒）",
+    "view_expire_placeholder": "不启用阅后即焚",
+    "first_viewed_at": "首次查看时间",
+    "self_destructed": "已销毁",
+    "self_destructs_at": "销毁时间",
+    "reset": "重置",
+    "reset_confirm_title": "确定要重置此链接？",
+    "reset_confirm_desc": "这将重置访问次数并允许链接再次被查看。",
+    "reset_success": "链接重置成功"
   }
 }

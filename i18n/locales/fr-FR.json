@@ -184,6 +184,15 @@
       "az": "Slug A-Z",
       "za": "Slug Z-A",
       "tip": "Essai : uniquement pour les liens chargés"
-    }
+    },
+    "view_expire_seconds": "Minuterie d'autodestruction (secondes)",
+    "view_expire_placeholder": "Pas d'autodestruction",
+    "first_viewed_at": "Première consultation",
+    "self_destructed": "Autodétruit",
+    "self_destructs_at": "Autodestruction à",
+    "reset": "Réinitialiser",
+    "reset_confirm_title": "Réinitialiser ce lien ?",
+    "reset_confirm_desc": "Cela réinitialisera le compteur de visites et permettra de consulter à nouveau le lien.",
+    "reset_success": "Lien réinitialisé avec succès"
   }
 }

@@ -184,6 +184,15 @@
       "az": "Slug A-Z",
       "za": "Slug Z-A",
       "tip": "Trải nghiệm: Chỉ áp dụng với các liên kết đã tải"
-    }
+    },
+    "view_expire_seconds": "Hẹn giờ tự hủy (giây)",
+    "view_expire_placeholder": "Không tự hủy",
+    "first_viewed_at": "Lần xem đầu tiên",
+    "self_destructed": "Đã tự hủy",
+    "self_destructs_at": "Tự hủy lúc",
+    "reset": "Đặt lại",
+    "reset_confirm_title": "Đặt lại liên kết này?",
+    "reset_confirm_desc": "Điều này sẽ đặt lại số lượt truy cập và cho phép liên kết được xem lại.",
+    "reset_success": "Đặt lại liên kết thành công"
   }
 }

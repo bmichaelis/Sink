@@ -48,6 +48,52 @@ function renderTextPage(link: z.infer<typeof LinkSchema>): string {
   const htmlContent = marked.parse(content, { async: false }) as string
   const title = link.title || link.slug
 
+  // Self-destruct countdown timer
+  let countdownHtml = ''
+  let countdownScript = ''
+  let countdownCss = ''
+  if (link.viewExpireSeconds && link.firstHitAt) {
+    const expiresAt = link.firstHitAt + link.viewExpireSeconds
+    countdownHtml = '<div id="countdown" class="countdown"></div>'
+    countdownCss = `
+    .countdown {
+      position: fixed;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(239, 68, 68, 0.95);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 1000;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    @media (prefers-color-scheme: dark) {
+      .countdown { background: rgba(220, 38, 38, 0.95); }
+    }`
+    countdownScript = `
+  <script>
+    (function() {
+      var expiresAt = ${expiresAt} * 1000;
+      var el = document.getElementById('countdown');
+      function update() {
+        var remaining = Math.max(0, expiresAt - Date.now());
+        if (remaining <= 0) { window.location.reload(); return; }
+        var secs = Math.ceil(remaining / 1000);
+        var mins = Math.floor(secs / 60);
+        var s = secs % 60;
+        el.textContent = mins > 0
+          ? 'Self-destructs in ' + mins + 'm ' + s + 's'
+          : 'Self-destructs in ' + secs + 's';
+      }
+      update();
+      setInterval(update, 1000);
+    })();
+  </script>`
+  }
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -107,11 +153,12 @@ function renderTextPage(link: z.infer<typeof LinkSchema>): string {
     hr { border: none; border-top: 1px solid #e5e7eb; margin: 2em 0; }
     table { border-collapse: collapse; width: 100%; margin: 1em 0; }
     th, td { border: 1px solid #e5e7eb; padding: 0.5rem; text-align: left; }
-    th { background: #f9fafb; }
+    th { background: #f9fafb; }${countdownCss}
   </style>
 </head>
 <body>
   <article>${htmlContent}</article>
+  ${countdownHtml}${countdownScript}
 </body>
 </html>`
 }
@@ -150,10 +197,12 @@ export default eventHandler(async (event) => {
         return renderExpiredPage()
       }
 
-      // Increment hit count and update KV (fire-and-forget)
+      // Increment hit count and set firstHitAt on first view
+      const now = Math.floor(Date.now() / 1000)
       const updatedLink = {
         ...link,
         hitCount: (link.hitCount || 0) + 1,
+        firstHitAt: link.firstHitAt || now,
       }
       const kvKey = `link:${caseSensitive ? slug : lowerCaseSlug}`
       KV.put(kvKey, JSON.stringify(updatedLink), {
@@ -175,8 +224,17 @@ export default eventHandler(async (event) => {
 
       // Handle text type links
       if (link.type === 'text' || (link.content && !link.url)) {
+        // Check if view has expired (for self-destructing messages)
+        if (updatedLink.viewExpireSeconds && updatedLink.firstHitAt) {
+          const expiresAt = updatedLink.firstHitAt + updatedLink.viewExpireSeconds
+          if (now >= expiresAt) {
+            setHeader(event, 'Content-Type', 'text/html; charset=utf-8')
+            setResponseStatus(event, 410)
+            return renderExpiredPage()
+          }
+        }
         setHeader(event, 'Content-Type', 'text/html; charset=utf-8')
-        return renderTextPage(link)
+        return renderTextPage(updatedLink)
       }
 
       // Handle redirect type links

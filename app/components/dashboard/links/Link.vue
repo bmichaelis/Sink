@@ -1,6 +1,6 @@
 <script setup>
 import { useClipboard } from '@vueuse/core'
-import { CalendarPlus2, Copy, CopyCheck, Eraser, FileText, Gauge, Hourglass, Link as LinkIcon, QrCode, SquareChevronDown, SquarePen } from 'lucide-vue-next'
+import { CalendarPlus2, Copy, CopyCheck, Eraser, Eye, FileText, Gauge, Hourglass, Link as LinkIcon, QrCode, RotateCcw, SquareChevronDown, SquarePen, Timer } from 'lucide-vue-next'
 import { parseURL } from 'ufo'
 import { toast } from 'vue-sonner'
 import QRCode from './QRCode.vue'
@@ -46,6 +46,21 @@ const hitLimitDisplay = computed(() => {
   const max = props.link.maxHits
   const isExpired = count >= max
   return { count, max, isExpired }
+})
+
+const firstHitDisplay = computed(() => {
+  if (!props.link.firstHitAt)
+    return null
+  return props.link.firstHitAt
+})
+
+const selfDestructDisplay = computed(() => {
+  if (!props.link.viewExpireSeconds || !props.link.firstHitAt)
+    return null
+  const expiresAt = props.link.firstHitAt + props.link.viewExpireSeconds
+  const now = Math.floor(Date.now() / 1000)
+  const isExpired = now >= expiresAt
+  return { expiresAt, isExpired }
 })
 
 const { copy, copied } = useClipboard({ source: shortLink.value, copiedDuring: 400 })
@@ -184,6 +199,23 @@ function copyLink() {
                 /> {{ $t('common.delete') }}
               </div>
             </DashboardLinksDelete>
+
+            <template v-if="link.maxHits">
+              <Separator />
+
+              <DashboardLinksReset
+                :link="link"
+                @update:link="updateLink"
+              >
+                <div
+                  class="cursor-pointer flex select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
+                >
+                  <RotateCcw
+                    class="w-5 h-5 mr-2"
+                  /> {{ $t('links.reset') }}
+                </div>
+              </DashboardLinksReset>
+            </template>
           </PopoverContent>
         </Popover>
       </div>
@@ -230,6 +262,50 @@ function copyLink() {
                 </p>
                 <p v-else>
                   {{ hitLimitDisplay.count }} / {{ hitLimitDisplay.max }} {{ $t('links.hits_used') }}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </template>
+        <template v-if="firstHitDisplay">
+          <Separator orientation="vertical" />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <span class="inline-flex items-center leading-5 whitespace-nowrap">
+                  <Eye class="w-4 h-4 mr-1" /> {{ shortDate(firstHitDisplay) }}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{{ $t('links.first_viewed_at') }}: {{ longDate(firstHitDisplay) }}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </template>
+        <template v-if="selfDestructDisplay">
+          <Separator orientation="vertical" />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <span
+                  class="inline-flex items-center leading-5 whitespace-nowrap"
+                  :class="{ 'text-destructive': selfDestructDisplay.isExpired }"
+                >
+                  <Timer class="w-4 h-4 mr-1" />
+                  <template v-if="selfDestructDisplay.isExpired">
+                    {{ $t('links.self_destructed') }}
+                  </template>
+                  <template v-else>
+                    {{ shortDate(selfDestructDisplay.expiresAt) }}
+                  </template>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p v-if="selfDestructDisplay.isExpired">
+                  {{ $t('links.self_destructed') }}
+                </p>
+                <p v-else>
+                  {{ $t('links.self_destructs_at') }}: {{ longDate(selfDestructDisplay.expiresAt) }}
                 </p>
               </TooltipContent>
             </Tooltip>

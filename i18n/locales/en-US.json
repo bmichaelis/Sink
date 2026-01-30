@@ -184,6 +184,15 @@
       "az": "Slug A-Z",
       "za": "Slug Z-A",
       "tip": "Experience: Only for loaded links"
-    }
+    },
+    "view_expire_seconds": "Self-Destruct Timer (seconds)",
+    "view_expire_placeholder": "No self-destruct",
+    "first_viewed_at": "First Viewed",
+    "self_destructed": "Self-destructed",
+    "self_destructs_at": "Self-destructs at",
+    "reset": "Reset",
+    "reset_confirm_title": "Reset this link?",
+    "reset_confirm_desc": "This will reset the hit count and allow the link to be viewed again.",
+    "reset_success": "Link reset successfully"
   }
 }

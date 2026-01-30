@@ -27,6 +27,8 @@ export const BaseLinkSchema = z.object({
   image: z.string().trim().url().max(2048).optional(),
   maxHits: z.number().int().positive().optional(),
   hitCount: z.number().int().nonnegative().default(0),
+  viewExpireSeconds: z.number().int().positive().optional(),
+  firstHitAt: z.number().int().safe().optional(),
 })
 
 export const LinkSchema = BaseLinkSchema.refine(

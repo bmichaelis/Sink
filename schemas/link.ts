@@ -9,7 +9,7 @@ export const nanoid = (length: number = slugDefaultLength) => customAlphabet('23
 
 export const LinkTypeEnum = z.enum(['redirect', 'text'])
 
-export const LinkSchema = z.object({
+export const BaseLinkSchema = z.object({
   id: z.string().trim().max(26).default(nanoid(10)),
   type: LinkTypeEnum.default('redirect'),
   url: z.string().trim().url().max(2048).optional(),
@@ -25,7 +25,9 @@ export const LinkSchema = z.object({
   title: z.string().trim().max(2048).optional(),
   description: z.string().trim().max(2048).optional(),
   image: z.string().trim().url().max(2048).optional(),
-}).refine(
+})
+
+export const LinkSchema = BaseLinkSchema.refine(
   (data) => {
     if (data.type === 'redirect')
       return !!data.url

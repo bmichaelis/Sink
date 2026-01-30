@@ -1,6 +1,6 @@
 <script setup>
 import { DependencyType } from '@/components/ui/auto-form/interface'
-import { LinkSchema, LinkTypeEnum, nanoid } from '@@/schemas/link'
+import { BaseLinkSchema, LinkTypeEnum, nanoid } from '@@/schemas/link'
 import { toTypedSchema } from '@vee-validate/zod'
 import { Shuffle, Sparkles } from 'lucide-vue-next'
 import { useForm } from 'vee-validate'
@@ -26,8 +26,8 @@ const EditLinkSchema = z.object({
   type: LinkTypeEnum.default('redirect'),
   url: z.string().trim().url().max(2048).optional(),
   content: z.string().trim().max(50000).optional(),
-  slug: LinkSchema.shape.slug,
-  optional: LinkSchema.omit({
+  slug: BaseLinkSchema.shape.slug,
+  optional: BaseLinkSchema.omit({
     id: true,
     type: true,
     url: true,

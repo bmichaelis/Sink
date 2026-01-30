@@ -3,6 +3,46 @@ import type { z } from 'zod'
 import { marked } from 'marked'
 import { parsePath, withQuery } from 'ufo'
 
+function renderExpiredPage(): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Link Expired</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      line-height: 1.6;
+      color: #1a1a1a;
+      background: #fafafa;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: #1a1a1a; color: #e5e5e5; }
+      p { color: #9ca3af; }
+    }
+    .container {
+      text-align: center;
+      padding: 2rem;
+    }
+    h1 { font-size: 2em; margin-bottom: 0.5em; }
+    p { color: #6b7280; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Link Expired</h1>
+    <p>This link has reached its maximum number of visits and is no longer available.</p>
+  </div>
+</body>
+</html>`
+}
+
 function renderTextPage(link: z.infer<typeof LinkSchema>): string {
   const content = link.content || ''
   const htmlContent = marked.parse(content, { async: false }) as string
@@ -103,7 +143,29 @@ export default eventHandler(async (event) => {
     }
 
     if (link) {
-      event.context.link = link
+      // Check hit limit before processing
+      if (link.maxHits !== undefined && (link.hitCount || 0) >= link.maxHits) {
+        setHeader(event, 'Content-Type', 'text/html; charset=utf-8')
+        setResponseStatus(event, 410) // Gone
+        return renderExpiredPage()
+      }
+
+      // Increment hit count and update KV (fire-and-forget)
+      const updatedLink = {
+        ...link,
+        hitCount: (link.hitCount || 0) + 1,
+      }
+      const kvKey = `link:${caseSensitive ? slug : lowerCaseSlug}`
+      KV.put(kvKey, JSON.stringify(updatedLink), {
+        expiration: link.expiration,
+        metadata: {
+          expiration: link.expiration,
+          url: updatedLink.url,
+          comment: updatedLink.comment,
+        },
+      }).catch((err: unknown) => console.error('Failed to update hit count:', err))
+
+      event.context.link = updatedLink
       try {
         await useAccessLog(event)
       }

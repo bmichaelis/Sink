@@ -38,8 +38,10 @@ const EditLinkSchema = z.object({
     title: true,
     description: true,
     image: true,
+    hitCount: true,
   }).extend({
     expiration: z.coerce.date().optional(),
+    maxHits: z.coerce.number().int().positive().optional(),
   }).optional(),
 }).refine(
   (data) => {
@@ -76,6 +78,14 @@ const fieldConfig = {
   optional: {
     comment: {
       component: 'textarea',
+    },
+    maxHits: {
+      label: t('links.max_hits'),
+      inputProps: {
+        type: 'number',
+        min: 1,
+        placeholder: t('links.max_hits_placeholder'),
+      },
     },
   },
 }
@@ -146,6 +156,9 @@ onMounted(() => {
   if (link.value.expiration) {
     form.setFieldValue('optional.expiration', unix2date(link.value.expiration))
   }
+  if (link.value.maxHits) {
+    form.setFieldValue('optional.maxHits', link.value.maxHits)
+  }
 })
 
 async function onSubmit(formData) {
@@ -156,6 +169,7 @@ async function onSubmit(formData) {
     ...(isText ? { content: formData.content } : { url: formData.url }),
     ...(formData.optional || []),
     expiration: formData.optional?.expiration ? date2unix(formData.optional?.expiration, 'end') : undefined,
+    maxHits: formData.optional?.maxHits || undefined,
   }
   const { link: newLink } = await useAPI(isEdit ? '/api/link/edit' : '/api/link/create', {
     method: isEdit ? 'PUT' : 'POST',

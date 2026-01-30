@@ -1,6 +1,6 @@
 <script setup>
 import { useClipboard } from '@vueuse/core'
-import { CalendarPlus2, Copy, CopyCheck, Eraser, FileText, Hourglass, Link as LinkIcon, QrCode, SquareChevronDown, SquarePen } from 'lucide-vue-next'
+import { CalendarPlus2, Copy, CopyCheck, Eraser, FileText, Gauge, Hourglass, Link as LinkIcon, QrCode, SquareChevronDown, SquarePen } from 'lucide-vue-next'
 import { parseURL } from 'ufo'
 import { toast } from 'vue-sonner'
 import QRCode from './QRCode.vue'
@@ -37,6 +37,15 @@ const contentPreview = computed(() => {
   if (!props.link.content)
     return ''
   return props.link.content.slice(0, 100) + (props.link.content.length > 100 ? '...' : '')
+})
+
+const hitLimitDisplay = computed(() => {
+  if (!props.link.maxHits)
+    return null
+  const count = props.link.hitCount || 0
+  const max = props.link.maxHits
+  const isExpired = count >= max
+  return { count, max, isExpired }
 })
 
 const { copy, copied } = useClipboard({ source: shortLink.value, copiedDuring: 400 })
@@ -199,6 +208,29 @@ function copyLink() {
               </TooltipTrigger>
               <TooltipContent>
                 <p>Expires At: {{ longDate(link.expiration) }}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </template>
+        <template v-if="hitLimitDisplay">
+          <Separator orientation="vertical" />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <span
+                  class="inline-flex items-center leading-5 whitespace-nowrap"
+                  :class="{ 'text-destructive': hitLimitDisplay.isExpired }"
+                >
+                  <Gauge class="w-4 h-4 mr-1" /> {{ hitLimitDisplay.count }}/{{ hitLimitDisplay.max }}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p v-if="hitLimitDisplay.isExpired">
+                  {{ $t('links.hit_limit_reached') }}
+                </p>
+                <p v-else>
+                  {{ hitLimitDisplay.count }} / {{ hitLimitDisplay.max }} {{ $t('links.hits_used') }}
+                </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

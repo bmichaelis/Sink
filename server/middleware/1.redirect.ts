@@ -177,8 +177,8 @@ export default eventHandler(async (event) => {
 
     let link: z.infer<typeof LinkSchema> | null = null
 
-    const getLink = async (key: string) =>
-      await KV.get(`link:${key}`, { type: 'json', cacheTtl: linkCacheTtl })
+    const getLink = async (key: string, useCache = true) =>
+      await KV.get(`link:${key}`, { type: 'json', cacheTtl: useCache ? linkCacheTtl : undefined })
 
     const lowerCaseSlug = slug.toLowerCase()
     link = await getLink(caseSensitive ? slug : lowerCaseSlug)
@@ -187,6 +187,12 @@ export default eventHandler(async (event) => {
     if (!caseSensitive && !link && lowerCaseSlug !== slug) {
       console.log('original slug fallback:', `slug:${slug} lowerCaseSlug:${lowerCaseSlug}`)
       link = await getLink(slug)
+    }
+
+    // For links with self-destruct timer, bypass cache to get fresh firstHitAt
+    if (link?.viewExpireSeconds) {
+      const kvKey = caseSensitive ? slug : lowerCaseSlug
+      link = await getLink(kvKey, false)
     }
 
     if (link) {

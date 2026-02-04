@@ -211,14 +211,22 @@ export default eventHandler(async (event) => {
         firstHitAt: link.firstHitAt || now,
       }
       const kvKey = `link:${caseSensitive ? slug : lowerCaseSlug}`
-      KV.put(kvKey, JSON.stringify(updatedLink), {
+      const kvWritePromise = KV.put(kvKey, JSON.stringify(updatedLink), {
         expiration: link.expiration,
         metadata: {
           expiration: link.expiration,
           url: updatedLink.url,
           comment: updatedLink.comment,
         },
-      }).catch((err: unknown) => console.error('Failed to update hit count:', err))
+      })
+
+      // For self-destruct links, await KV write to ensure firstHitAt is persisted
+      if (updatedLink.viewExpireSeconds) {
+        await kvWritePromise.catch((err: unknown) => console.error('Failed to update link:', err))
+      }
+      else {
+        kvWritePromise.catch((err: unknown) => console.error('Failed to update hit count:', err))
+      }
 
       event.context.link = updatedLink
       try {
@@ -235,11 +243,16 @@ export default eventHandler(async (event) => {
           const expiresAt = updatedLink.firstHitAt + updatedLink.viewExpireSeconds
           if (now >= expiresAt) {
             setHeader(event, 'Content-Type', 'text/html; charset=utf-8')
+            setHeader(event, 'Cache-Control', 'no-store')
             setResponseStatus(event, 410)
             return renderExpiredPage()
           }
         }
         setHeader(event, 'Content-Type', 'text/html; charset=utf-8')
+        // Prevent caching for self-destruct pages so reload fetches fresh state
+        if (updatedLink.viewExpireSeconds) {
+          setHeader(event, 'Cache-Control', 'no-store')
+        }
         return renderTextPage(updatedLink)
       }
 

@@ -11,6 +11,9 @@
   "compatibility_flags": [
     "nodejs_compat"
   ],
+  // Custom domain scan.flippinflops.com is managed in the Cloudflare dashboard
+  // (Workers > kinda-sink > Domains & Routes), not here — the deploy API token
+  // lacks Workers Routes permission, so a routes entry would fail every deploy.
   "keep_vars": true,
   "upload_source_maps": true,
   "observability": {

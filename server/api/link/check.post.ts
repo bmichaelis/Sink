@@ -76,7 +76,7 @@ async function checkLink(
 
   const link = {
     slug,
-    url: storedLink.url,
+    url: storedLink.url ?? '',
   }
 
   if (!isCheckableUrl(link.url)) {

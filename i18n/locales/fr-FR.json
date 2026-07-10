@@ -280,7 +280,19 @@
       "utm_clear": "Effacer",
       "utm_invalid_url": "Saisissez une URL valide pour prévisualiser et appliquer les paramètres UTM.",
       "ai_og_generate": "Générer l'OpenGraph IA",
-      "duplicate_url_hint": "Cette URL existe déjà sous {shortLink}"
+      "duplicate_url_hint": "Cette URL existe déjà sous {shortLink}",
+      "type": "Type de lien",
+      "type_redirect": "Redirection",
+      "type_text": "Texte",
+      "content": "Contenu",
+      "content_placeholder": "Saisissez le contenu markdown...",
+      "content_description": "Le markdown est pris en charge.",
+      "max_hits": "Limite de visites",
+      "max_hits_placeholder": "Illimité",
+      "max_hits_description": "Nombre maximum de visites avant expiration du lien.",
+      "view_expire_seconds": "Minuterie d'autodestruction (secondes)",
+      "view_expire_placeholder": "Pas d'autodestruction",
+      "view_expire_description": "Secondes après la première consultation avant l'autodestruction du contenu."
     },
     "sort": {
       "newest": "Les plus récents",
@@ -293,7 +305,17 @@
     "create_failed": "Échec de la création du lien",
     "ai_slug_failed": "Échec de la génération du slug IA",
     "ai_og_failed": "Échec de la génération de l'OpenGraph IA",
-    "ai_og_success": "OpenGraph IA généré avec succès"
+    "ai_og_success": "OpenGraph IA généré avec succès",
+    "hit_limit_reached": "Limite de visites atteinte - lien expiré",
+    "hits_used": "visites utilisées",
+    "first_viewed_at": "Première consultation",
+    "self_destructed": "Autodétruit",
+    "self_destructs_at": "Autodestruction à",
+    "reset": "Réinitialiser",
+    "reset_confirm_title": "Réinitialiser ce lien ?",
+    "reset_confirm_desc": "Cela réinitialisera le compteur de visites et la minuterie d'autodestruction, permettant de consulter à nouveau le lien.",
+    "reset_success": "Lien réinitialisé avec succès",
+    "reset_failed": "Échec de la réinitialisation du lien"
   },
   "check": {
     "title": "Link Check",

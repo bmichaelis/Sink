@@ -27,9 +27,13 @@ export const EditLinkPasswordSchema = z.string().trim().max(128).refine(
   'masked password cannot be submitted',
 ).optional()
 
+export const LinkTypeEnum = z.enum(['redirect', 'text'])
+
 export const LinkSchema = z.object({
   id: z.string().trim().max(26).default(nanoid(10)),
-  url: z.string().trim().url().max(2048),
+  type: LinkTypeEnum.default('redirect'),
+  url: z.string().trim().url().max(2048).optional(),
+  content: z.string().trim().max(50000).optional(),
   slug: z.string().trim().max(2048).regex(new RegExp(slugRegex)).default(nanoid()),
   comment: z.string().trim().max(2048).optional(),
   createdAt: z.number().int().safe().default(() => Math.floor(Date.now() / 1000)),
@@ -48,9 +52,29 @@ export const LinkSchema = z.object({
   password: LinkPasswordSchema.optional(),
   unsafe: z.boolean().optional(),
   geo: GeoSchema.optional(),
+  maxHits: z.number().int().positive().optional(),
+  hitCount: z.number().int().nonnegative().default(0),
+  viewExpireSeconds: z.number().int().positive().optional(),
+  firstHitAt: z.number().int().safe().optional(),
 })
 
 export type Link = z.infer<typeof LinkSchema>
+
+// Validate that redirect links have a URL and text links have content.
+// Applied at the API boundary (create/edit/upsert) rather than on LinkSchema
+// itself, so LinkSchema stays a plain ZodObject and `.shape`/`.extend` keep working.
+export function refineLinkContent(
+  data: { type?: 'redirect' | 'text', url?: string, content?: string },
+  ctx: z.RefinementCtx,
+): void {
+  const type = data.type ?? 'redirect'
+  if (type === 'redirect' && !data.url) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'URL is required for redirect links', path: ['url'] })
+  }
+  if (type === 'text' && !data.content) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Content is required for text links', path: ['content'] })
+  }
+}
 
 export interface ExportData {
   version: string

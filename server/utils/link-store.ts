@@ -28,7 +28,7 @@ export async function putLink(event: H3Event, link: Link): Promise<void> {
     expiration,
     metadata: {
       expiration,
-      url: withoutQuery(link.url),
+      url: link.url ? withoutQuery(link.url) : undefined,
       comment: link.comment,
     },
   })

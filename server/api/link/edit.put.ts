@@ -1,9 +1,9 @@
 import type { z } from 'zod'
-import { EditLinkPasswordSchema, LinkSchema } from '#shared/schemas/link'
+import { EditLinkPasswordSchema, LinkSchema, refineLinkContent } from '#shared/schemas/link'
 
 const EditLinkSchema = LinkSchema.extend({
   password: EditLinkPasswordSchema,
-})
+}).superRefine(refineLinkContent)
 
 defineRouteMeta({
   openAPI: {

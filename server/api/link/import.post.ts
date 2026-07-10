@@ -93,7 +93,7 @@ export default eventHandler(async (event) => {
       const existingLink = await getLink(event, slug)
 
       if (existingLink) {
-        result.skippedItems.push({ index: i, slug, url: linkData.url })
+        result.skippedItems.push({ index: i, slug, url: linkData.url ?? '' })
         result.skipped++
         continue
       }
@@ -112,7 +112,7 @@ export default eventHandler(async (event) => {
       }
 
       await putLink(event, link)
-      result.successItems.push({ index: i, slug, url: linkData.url })
+      result.successItems.push({ index: i, slug, url: linkData.url ?? '' })
       result.success++
     }
     catch (error) {
@@ -120,7 +120,7 @@ export default eventHandler(async (event) => {
       result.failedItems.push({
         index: i,
         slug: linkData.slug,
-        url: linkData.url,
+        url: linkData.url ?? '',
         reason: error instanceof Error ? error.message : 'Unknown error',
       })
     }

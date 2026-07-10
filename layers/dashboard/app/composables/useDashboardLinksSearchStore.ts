@@ -68,7 +68,7 @@ export const useDashboardLinksSearchStore = defineStore('dashboard-links-search'
 
     const nextLink: LinkSearchItem = {
       slug: link.slug,
-      url: withoutUrlQuery(link.url) ?? link.url,
+      url: link.url ? (withoutUrlQuery(link.url) ?? link.url) : '',
       comment: link.comment,
     }
     const index = links.value.findIndex(item => item.slug === link.slug)

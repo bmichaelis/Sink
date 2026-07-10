@@ -1,4 +1,6 @@
-import { LinkSchema } from '#shared/schemas/link'
+import { LinkSchema, refineLinkContent } from '#shared/schemas/link'
+
+const UpsertLinkSchema = LinkSchema.superRefine(refineLinkContent)
 
 defineRouteMeta({
   openAPI: {
@@ -32,7 +34,7 @@ defineRouteMeta({
 })
 
 export default eventHandler(async (event) => {
-  const link = await readValidatedBody(event, LinkSchema.parse)
+  const link = await readValidatedBody(event, UpsertLinkSchema.parse)
 
   await prepareIncomingLink(event, link)
 

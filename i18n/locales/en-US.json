@@ -280,7 +280,19 @@
       "utm_clear": "Clear",
       "utm_invalid_url": "Enter a valid URL to preview and apply UTM parameters.",
       "ai_og_generate": "Generate AI OpenGraph",
-      "duplicate_url_hint": "This URL already exists as {shortLink}"
+      "duplicate_url_hint": "This URL already exists as {shortLink}",
+      "type": "Link Type",
+      "type_redirect": "Redirect",
+      "type_text": "Text",
+      "content": "Content",
+      "content_placeholder": "Enter markdown content...",
+      "content_description": "Markdown is supported.",
+      "max_hits": "Hit Limit",
+      "max_hits_placeholder": "Unlimited",
+      "max_hits_description": "Maximum number of visits before the link expires.",
+      "view_expire_seconds": "Self-Destruct Timer (seconds)",
+      "view_expire_placeholder": "No self-destruct",
+      "view_expire_description": "Seconds after first view before the content self-destructs."
     },
     "sort": {
       "newest": "Newest First",
@@ -293,7 +305,17 @@
     "create_failed": "Failed to create link",
     "ai_slug_failed": "Failed to generate AI slug",
     "ai_og_failed": "Failed to generate AI OpenGraph",
-    "ai_og_success": "AI OpenGraph generated successfully"
+    "ai_og_success": "AI OpenGraph generated successfully",
+    "hit_limit_reached": "Hit limit reached - link expired",
+    "hits_used": "hits used",
+    "first_viewed_at": "First Viewed",
+    "self_destructed": "Self-destructed",
+    "self_destructs_at": "Self-destructs at",
+    "reset": "Reset",
+    "reset_confirm_title": "Reset this link?",
+    "reset_confirm_desc": "This will reset the hit count and self-destruct timer, allowing the link to be viewed again.",
+    "reset_success": "Link reset successfully",
+    "reset_failed": "Failed to reset link"
   },
   "check": {
     "title": "Link Check",

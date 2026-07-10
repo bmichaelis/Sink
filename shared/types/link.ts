@@ -12,10 +12,13 @@ export interface LinkSearchItem {
   comment?: string
 }
 
-// Form data derived from Link, with DateValue for expiration and required strings for optional fields
-type LinkFormFields = Omit<Link, 'id' | 'createdAt' | 'updatedAt' | 'expiration' | 'geo'> & {
+// Form data derived from Link, with DateValue for expiration and required strings for optional fields.
+// hitCount/firstHitAt are internal counters managed server-side, so they are excluded from the form.
+type LinkFormFields = Omit<Link, 'id' | 'createdAt' | 'updatedAt' | 'expiration' | 'geo' | 'hitCount' | 'firstHitAt' | 'maxHits' | 'viewExpireSeconds'> & {
   expiration: DateValue | undefined
   geo: { country: string, url: string }[]
+  maxHits: number | undefined
+  viewExpireSeconds: number | undefined
 }
 
 export type LinkFormData = {

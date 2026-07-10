@@ -142,7 +142,7 @@ async function handleImport() {
         result.failedItems.push({
           index: batchStart + idx,
           slug: link.slug,
-          url: link.url,
+          url: link.url ?? '',
           reason: error instanceof Error ? error.message : 'Batch import failed',
         })
       })

@@ -13,6 +13,9 @@ const editableOptionalLinkFields = [
   'expiration',
   'unsafe',
   'geo',
+  'content',
+  'maxHits',
+  'viewExpireSeconds',
 ] as const satisfies readonly (keyof Link)[]
 
 interface LinkResponse {
@@ -27,6 +30,10 @@ export async function prepareIncomingLink(event: H3Event, link: Link): Promise<v
 
 export async function detectUnsafeLink(event: H3Event, link: Pick<Link, 'url' | 'unsafe'>): Promise<void> {
   if (link.unsafe !== undefined)
+    return
+
+  // Text links have no URL to check against Safe Browsing.
+  if (!link.url)
     return
 
   const safe = await isSafeUrl(event, link.url)
@@ -54,6 +61,9 @@ export function mergeEditableLink(existingLink: Link, link: Link): Link {
     id: existingLink.id,
     createdAt: existingLink.createdAt,
     updatedAt: Math.floor(Date.now() / 1000),
+    // Preserve server-managed hit counters (never edited from the form).
+    hitCount: existingLink.hitCount ?? 0,
+    firstHitAt: existingLink.firstHitAt,
   }
 
   cleanupOptionalLinkFields(newLink, link)

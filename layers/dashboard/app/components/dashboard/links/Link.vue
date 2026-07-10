@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CounterData, Link } from '@/types'
 import { useClipboard } from '@vueuse/core'
-import { CalendarPlus2, Copy, CopyCheck, Eraser, Flame, Hourglass, Link as LinkIcon, MousePointerClick, QrCode, ShieldAlert, SquareChevronDown, SquarePen, Users } from 'lucide-vue-next'
+import { CalendarPlus2, Copy, CopyCheck, Eraser, Eye, FileText, Flame, Gauge, Hourglass, Link as LinkIcon, MousePointerClick, QrCode, RotateCcw, ShieldAlert, SquareChevronDown, SquarePen, Timer, Users } from 'lucide-vue-next'
 import { parseURL } from 'ufo'
 import { toast } from 'vue-sonner'
 
@@ -19,13 +19,40 @@ const requestUrl = useRequestURL()
 const host = requestUrl.host
 const origin = requestUrl.origin
 
-function getLinkHost(url: string): string | undefined {
+function getLinkHost(url?: string): string | undefined {
+  if (!url)
+    return undefined
   const { host } = parseURL(url)
   return host
 }
 
+const isTextLink = computed(() => props.link.type === 'text' || (!!props.link.content && !props.link.url))
 const shortLink = computed(() => `${origin}/${props.link.slug}`)
-const linkIcon = computed(() => `https://unavatar.webp.se/${getLinkHost(props.link.url)}?fallback=https://sink.cool/icon.png`)
+const linkIcon = computed(() => {
+  if (isTextLink.value)
+    return '/icon.png'
+  return `https://unavatar.webp.se/${getLinkHost(props.link.url)}?fallback=https://sink.cool/icon.png`
+})
+
+const contentPreview = computed(() => {
+  if (!props.link.content)
+    return ''
+  return props.link.content.slice(0, 100) + (props.link.content.length > 100 ? '...' : '')
+})
+
+const hitLimitDisplay = computed(() => {
+  if (!props.link.maxHits)
+    return null
+  const count = props.link.hitCount || 0
+  return { count, max: props.link.maxHits, isExpired: count >= props.link.maxHits }
+})
+
+const selfDestructDisplay = computed(() => {
+  if (!props.link.viewExpireSeconds || !props.link.firstHitAt)
+    return null
+  const expiresAt = props.link.firstHitAt + props.link.viewExpireSeconds
+  return { expiresAt, isExpired: Math.floor(Date.now() / 1000) >= expiresAt }
+})
 
 const { copy, copied } = useClipboard({ source: shortLink.value, copiedDuring: 400 })
 
@@ -105,7 +132,13 @@ function copyLink() {
             </TooltipProvider>
           </div>
 
+          <FileText
+            v-if="isTextLink"
+            class="h-5 w-5 text-muted-foreground"
+            aria-label="Text link"
+          />
           <a
+            v-else
             :href="link.url"
             target="_blank"
             rel="noopener noreferrer"
@@ -177,6 +210,25 @@ function copyLink() {
                   /> {{ $t('common.delete') }}
                 </div>
               </DashboardLinksDelete>
+
+              <template v-if="link.maxHits || link.viewExpireSeconds">
+                <Separator />
+
+                <DashboardLinksReset :link="link">
+                  <div
+                    class="
+                      flex cursor-pointer items-center rounded-sm px-2 py-1.5
+                      text-sm outline-hidden select-none
+                      hover:bg-accent hover:text-accent-foreground
+                    "
+                  >
+                    <RotateCcw
+                      aria-hidden="true"
+                      class="mr-2 h-5 w-5"
+                    /> {{ $t('links.reset') }}
+                  </div>
+                </DashboardLinksReset>
+              </template>
             </PopoverContent>
           </Popover>
         </div>
@@ -212,8 +264,77 @@ function copyLink() {
                 </Tooltip>
               </TooltipProvider>
             </template>
+            <template v-if="hitLimitDisplay">
+              <Separator orientation="vertical" />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger as-child>
+                    <span
+                      class="
+                        inline-flex items-center leading-5 whitespace-nowrap
+                      "
+                      :class="{ 'text-destructive': hitLimitDisplay.isExpired }"
+                    ><Gauge aria-hidden="true" class="mr-1 h-4 w-4" /> {{ hitLimitDisplay.count }}/{{ hitLimitDisplay.max }}</span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p v-if="hitLimitDisplay.isExpired">
+                      {{ $t('links.hit_limit_reached') }}
+                    </p>
+                    <p v-else>
+                      {{ hitLimitDisplay.count }} / {{ hitLimitDisplay.max }} {{ $t('links.hits_used') }}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </template>
+            <template v-if="link.firstHitAt">
+              <Separator orientation="vertical" />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger as-child>
+                    <span
+                      class="
+                        inline-flex items-center leading-5 whitespace-nowrap
+                      "
+                    >
+                      <Eye aria-hidden="true" class="mr-1 h-4 w-4" /> {{ shortDate(link.firstHitAt, locale) }}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{{ $t('links.first_viewed_at') }}: {{ longDate(link.firstHitAt, locale) }}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </template>
+            <template v-if="selfDestructDisplay">
+              <Separator orientation="vertical" />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger as-child>
+                    <span
+                      class="
+                        inline-flex items-center leading-5 whitespace-nowrap
+                      "
+                      :class="{ 'text-destructive': selfDestructDisplay.isExpired }"
+                    >
+                      <Timer aria-hidden="true" class="mr-1 h-4 w-4" />
+                      <template v-if="selfDestructDisplay.isExpired">{{ $t('links.self_destructed') }}</template>
+                      <template v-else>{{ shortDate(selfDestructDisplay.expiresAt, locale) }}</template>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p v-if="selfDestructDisplay.isExpired">
+                      {{ $t('links.self_destructed') }}
+                    </p>
+                    <p v-else>
+                      {{ $t('links.self_destructs_at') }}: {{ longDate(selfDestructDisplay.expiresAt, locale) }}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </template>
             <Separator orientation="vertical" />
-            <span class="truncate">{{ link.url }}</span>
+            <span class="truncate">{{ isTextLink ? contentPreview : link.url }}</span>
           </div>
           <div
             v-if="countersMap" class="flex h-5 w-full space-x-2 text-sm"

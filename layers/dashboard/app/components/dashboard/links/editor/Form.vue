@@ -39,9 +39,13 @@ function getPasswordSubmitValue(password: string): string | undefined {
 
 const form = useForm({
   defaultValues: {
+    type: props.link.type ?? 'redirect',
     url: props.link.url ?? '',
+    content: props.link.content ?? '',
     slug: props.link.slug ?? '',
     comment: props.link.comment ?? '',
+    maxHits: props.link.maxHits ?? undefined,
+    viewExpireSeconds: props.link.viewExpireSeconds ?? undefined,
     expiration: props.link.expiration
       ? unix2date(props.link.expiration)
       : undefined,
@@ -66,9 +70,13 @@ const form = useForm({
           geoRecord[country] = url
         }
       })
+      const isText = value.type === 'text'
       const linkData = {
-        url: value.url,
+        type: value.type,
         slug: value.slug,
+        ...(isText ? { content: value.content || undefined } : { url: value.url }),
+        maxHits: value.maxHits || undefined,
+        viewExpireSeconds: isText ? (value.viewExpireSeconds || undefined) : undefined,
         comment: value.comment || undefined,
         expiration: value.expiration
           ? date2unix(value.expiration, 'end')
@@ -153,6 +161,11 @@ async function aiSlug() {
 
 const currentSlug = form.useStore(state => state.values.slug || '')
 const currentUrl = form.useStore(state => state.values.url || '')
+const currentType = form.useStore(state => state.values.type || 'redirect')
+
+function setType(type: 'redirect' | 'text') {
+  form.setFieldValue('type', type)
+}
 const duplicateLink = computed(() => linksSearchStore.findDuplicateLink(currentUrl.value, props.link.slug))
 const shortDuplicateLink = computed(() => duplicateLink.value ? `${requestUrl.origin}/${duplicateLink.value.slug}` : '')
 
@@ -184,7 +197,30 @@ defineExpose({ randomSlug })
     </p>
 
     <FieldGroup>
+      <Field>
+        <FieldLabel>{{ $t('links.form.type') }}</FieldLabel>
+        <div class="grid grid-cols-2 gap-2">
+          <Button
+            type="button"
+            :variant="currentType === 'redirect' ? 'default' : 'outline'"
+            size="sm"
+            @click="setType('redirect')"
+          >
+            {{ $t('links.form.type_redirect') }}
+          </Button>
+          <Button
+            type="button"
+            :variant="currentType === 'text' ? 'default' : 'outline'"
+            size="sm"
+            @click="setType('text')"
+          >
+            {{ $t('links.form.type_text') }}
+          </Button>
+        </div>
+      </Field>
+
       <form.Field
+        v-if="currentType === 'redirect'"
         v-slot="{ field }"
         name="url"
         :validators="{ onBlur: validateUrl, onSubmit: validateUrl }"
@@ -237,6 +273,30 @@ defineExpose({ randomSlug })
             v-if="isInvalid(field)"
             :errors="formatErrors(field.state.meta.errors)"
           />
+        </Field>
+      </form.Field>
+
+      <form.Field
+        v-else
+        v-slot="{ field }"
+        name="content"
+      >
+        <Field :data-invalid="isInvalid(field)">
+          <FieldLabel :for="field.name">
+            {{ $t('links.form.content') }}
+          </FieldLabel>
+          <Textarea
+            :id="field.name"
+            :name="field.name"
+            :model-value="field.state.value"
+            :rows="8"
+            :placeholder="$t('links.form.content_placeholder')"
+            @blur="field.handleBlur"
+            @input="field.handleChange(($event.target as HTMLTextAreaElement).value)"
+          />
+          <FieldDescription class="text-xs">
+            {{ $t('links.form.content_description') }}
+          </FieldDescription>
         </Field>
       </form.Field>
 
@@ -307,6 +367,48 @@ defineExpose({ randomSlug })
           :aria-invalid="getAriaInvalid(field)"
           :errors="formatErrors(field.state.meta.errors)"
         />
+      </form.Field>
+
+      <form.Field v-slot="{ field }" name="maxHits">
+        <Field>
+          <FieldLabel :for="field.name">
+            {{ $t('links.form.max_hits') }}
+          </FieldLabel>
+          <Input
+            :id="field.name"
+            :name="field.name"
+            type="number"
+            min="1"
+            :model-value="field.state.value"
+            :placeholder="$t('links.form.max_hits_placeholder')"
+            @blur="field.handleBlur"
+            @input="field.handleChange(($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value))"
+          />
+          <FieldDescription class="text-xs">
+            {{ $t('links.form.max_hits_description') }}
+          </FieldDescription>
+        </Field>
+      </form.Field>
+
+      <form.Field v-if="currentType === 'text'" v-slot="{ field }" name="viewExpireSeconds">
+        <Field>
+          <FieldLabel :for="field.name">
+            {{ $t('links.form.view_expire_seconds') }}
+          </FieldLabel>
+          <Input
+            :id="field.name"
+            :name="field.name"
+            type="number"
+            min="1"
+            :model-value="field.state.value"
+            :placeholder="$t('links.form.view_expire_placeholder')"
+            @blur="field.handleBlur"
+            @input="field.handleChange(($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value))"
+          />
+          <FieldDescription class="text-xs">
+            {{ $t('links.form.view_expire_description') }}
+          </FieldDescription>
+        </Field>
       </form.Field>
     </FieldGroup>
 

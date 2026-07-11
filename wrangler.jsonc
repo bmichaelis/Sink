@@ -16,6 +16,11 @@
   // lacks Workers Routes permission, so a routes entry would fail every deploy.
   "keep_vars": true,
   "upload_source_maps": true,
+  "vars": {
+    // Stats queries read this dataset; it MUST match analytics_engine_datasets.dataset
+    // below, otherwise the dashboard queries an empty dataset and shows zero hits.
+    "NUXT_DATASET": "kinda_sink"
+  },
   "observability": {
     "logs": {
       "enabled": true

@@ -19,7 +19,10 @@
   "vars": {
     // Stats queries read this dataset; it MUST match analytics_engine_datasets.dataset
     // below, otherwise the dashboard queries an empty dataset and shows zero hits.
-    "NUXT_DATASET": "kinda_sink"
+    "NUXT_DATASET": "kinda_sink",
+    // 302 (temporary) so redirects aren't browser/proxy-cached — every scan hits the
+    // worker and is logged, and link destinations can be changed without stale caches.
+    "NUXT_REDIRECT_STATUS_CODE": "302"
   },
   "observability": {
     "logs": {

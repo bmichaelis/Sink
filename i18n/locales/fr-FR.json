@@ -292,7 +292,14 @@
       "max_hits_description": "Nombre maximum de visites avant expiration du lien.",
       "view_expire_seconds": "Minuterie d'autodestruction (secondes)",
       "view_expire_placeholder": "Pas d'autodestruction",
-      "view_expire_description": "Secondes après la première consultation avant l'autodestruction du contenu."
+      "view_expire_description": "Secondes après la première consultation avant l'autodestruction du contenu.",
+      "notifications": "Notifications",
+      "notify_url": "URL de notification",
+      "notify_url_description": "Recevez une notification quand ce lien est visité. Accepte une URL de sujet ntfy.sh, un webhook Discord ou toute URL de webhook (JSON POST).",
+      "notify_url_placeholder": "https://ntfy.sh/your-topic",
+      "notify_cooldown": "Délai entre notifications (minutes)",
+      "notify_cooldown_description": "Fenêtre de silence entre les notifications ; les visites pendant cette période sont regroupées dans la suivante. 0 notifie à chaque visite.",
+      "notify_cooldown_placeholder": "5"
     },
     "sort": {
       "newest": "Les plus récents",
@@ -315,7 +322,8 @@
     "reset_confirm_title": "Réinitialiser ce lien ?",
     "reset_confirm_desc": "Cela réinitialisera le compteur de visites et la minuterie d'autodestruction, permettant de consulter à nouveau le lien.",
     "reset_success": "Lien réinitialisé avec succès",
-    "reset_failed": "Échec de la réinitialisation du lien"
+    "reset_failed": "Échec de la réinitialisation du lien",
+    "notifications_on": "Notifications activées"
   },
   "check": {
     "title": "Link Check",

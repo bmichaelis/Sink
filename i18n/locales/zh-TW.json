@@ -292,7 +292,14 @@
       "max_hits_description": "連結過期前的最大訪問次數。",
       "view_expire_seconds": "閱後即焚計時器（秒）",
       "view_expire_placeholder": "不啟用閱後即焚",
-      "view_expire_description": "首次查看後內容自毀前的秒數。"
+      "view_expire_description": "首次查看後內容自毀前的秒數。",
+      "notifications": "通知",
+      "notify_url": "通知 URL",
+      "notify_url_description": "當此連結被訪問時收到推送通知。支援 ntfy.sh 主題 URL、Discord Webhook 或任意 Webhook URL（JSON POST）。",
+      "notify_url_placeholder": "https://ntfy.sh/your-topic",
+      "notify_cooldown": "通知冷卻時間（分鐘）",
+      "notify_cooldown_description": "兩次推送之間的靜默窗口；期間的訪問將合併到下一次通知中。0 表示每次訪問都通知。",
+      "notify_cooldown_placeholder": "5"
     },
     "sort": {
       "newest": "最新",
@@ -315,7 +322,8 @@
     "reset_confirm_title": "確定要重置此連結？",
     "reset_confirm_desc": "這將重置訪問次數和自毀計時器，允許連結再次被查看。",
     "reset_success": "連結重置成功",
-    "reset_failed": "連結重置失敗"
+    "reset_failed": "連結重置失敗",
+    "notifications_on": "通知已開啟"
   },
   "check": {
     "title": "連結檢測",

@@ -292,7 +292,14 @@
       "max_hits_description": "Số lượt truy cập tối đa trước khi liên kết hết hạn.",
       "view_expire_seconds": "Hẹn giờ tự hủy (giây)",
       "view_expire_placeholder": "Không tự hủy",
-      "view_expire_description": "Số giây sau lần xem đầu tiên trước khi nội dung tự hủy."
+      "view_expire_description": "Số giây sau lần xem đầu tiên trước khi nội dung tự hủy.",
+      "notifications": "Thông báo",
+      "notify_url": "URL thông báo",
+      "notify_url_description": "Nhận thông báo đẩy khi liên kết này được truy cập. Chấp nhận URL chủ đề ntfy.sh, webhook Discord hoặc bất kỳ URL webhook nào (JSON POST).",
+      "notify_url_placeholder": "https://ntfy.sh/your-topic",
+      "notify_cooldown": "Thời gian chờ thông báo (phút)",
+      "notify_cooldown_description": "Khoảng lặng giữa các thông báo; lượt truy cập trong thời gian này được gộp vào thông báo tiếp theo. 0 = thông báo mỗi lượt.",
+      "notify_cooldown_placeholder": "5"
     },
     "sort": {
       "newest": "Mới nhất trước",
@@ -315,7 +322,8 @@
     "reset_confirm_title": "Đặt lại liên kết này?",
     "reset_confirm_desc": "Điều này sẽ đặt lại số lượt truy cập và bộ hẹn giờ tự hủy, cho phép xem lại liên kết.",
     "reset_success": "Đặt lại liên kết thành công",
-    "reset_failed": "Đặt lại liên kết thất bại"
+    "reset_failed": "Đặt lại liên kết thất bại",
+    "notifications_on": "Đã bật thông báo"
   },
   "check": {
     "title": "Link Check",

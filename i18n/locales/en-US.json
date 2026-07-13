@@ -292,7 +292,14 @@
       "max_hits_description": "Maximum number of visits before the link expires.",
       "view_expire_seconds": "Self-Destruct Timer (seconds)",
       "view_expire_placeholder": "No self-destruct",
-      "view_expire_description": "Seconds after first view before the content self-destructs."
+      "view_expire_description": "Seconds after first view before the content self-destructs.",
+      "notifications": "Notifications",
+      "notify_url": "Notify URL",
+      "notify_url_description": "Get a push when this link is visited. Accepts an ntfy.sh topic URL, a Discord webhook, or any webhook URL (JSON POST).",
+      "notify_url_placeholder": "https://ntfy.sh/your-topic",
+      "notify_cooldown": "Notification cooldown (minutes)",
+      "notify_cooldown_description": "Quiet window between pushes; scans during it are batched into the next notification. 0 notifies on every scan.",
+      "notify_cooldown_placeholder": "5"
     },
     "sort": {
       "newest": "Newest First",
@@ -315,7 +322,8 @@
     "reset_confirm_title": "Reset this link?",
     "reset_confirm_desc": "This will reset the hit count and self-destruct timer, allowing the link to be viewed again.",
     "reset_success": "Link reset successfully",
-    "reset_failed": "Failed to reset link"
+    "reset_failed": "Failed to reset link",
+    "notifications_on": "Notifications on"
   },
   "check": {
     "title": "Link Check",

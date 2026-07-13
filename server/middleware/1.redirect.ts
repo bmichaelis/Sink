@@ -279,6 +279,8 @@ export default eventHandler(async (event) => {
         catch (error) {
           console.error('Failed write access log:', error)
         }
+        if (link.notifyUrl)
+          queueScanNotification(event, link)
         if (link.viewExpireSeconds)
           return sendNoStoreHtml(renderTextPage(link))
         setHeader(event, 'Content-Type', 'text/html; charset=utf-8')
@@ -346,6 +348,9 @@ export default eventHandler(async (event) => {
       catch (error) {
         console.error('Failed write access log:', error)
       }
+
+      if (link.notifyUrl)
+        queueScanNotification(event, link)
 
       if (deviceRedirectUrl) {
         return sendRedirect(event, finalTargetUrl, +redirectStatusCode)

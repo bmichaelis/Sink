@@ -37,12 +37,14 @@ adding fields to the schema without adding them to `defaultValues` breaks
 `types:check`.
 
 **Files:**
+
 - Modify: `shared/schemas/link.ts` (~line 50, end of the `LinkSchema` object)
 - Modify: `shared/types/link.ts` (~lines 16-23, `LinkFormFields` / `LinkFormData`)
 - Modify: `server/utils/link-processing.ts` (~lines 4-19, `editableOptionalLinkFields`)
 - Modify: `layers/dashboard/app/components/dashboard/links/editor/Form.vue` (defaultValues ~line 41, onSubmit linkData ~line 69)
 
 **Interfaces:**
+
 - Consumes: existing `LinkSchema`, `LinkFormData`, `editableOptionalLinkFields` patterns (the `maxHits`/`viewExpireSeconds` fields added by the previous feature are the exact template).
 - Produces: `Link.notifyUrl?: string`, `Link.notifyCooldownMinutes?: number` — every later task relies on these names. Form submits `notifyUrl` (empty string → `undefined`) and `notifyCooldownMinutes` (`number | undefined`, `0` preserved).
 
@@ -193,11 +195,13 @@ Claude-Session: https://claude.ai/code/session_015P4j4jPVr74UfW1GW795FE"
 ### Task 2: scan-notify util + middleware hooks (end-to-end: ntfy push)
 
 **Files:**
+
 - Create: `server/utils/scan-notify.ts`
 - Modify: `server/middleware/1.redirect.ts` (two insertion points, after each `useAccessLog` try/catch)
 - Test script: `$SCRATCH/e2e-notify.sh`
 
 **Interfaces:**
+
 - Consumes: `Link` type (`#shared/schemas/link`, auto-imported in server code), `link.notifyUrl` / `link.notifyCooldownMinutes` from Task 1, `buildShortLink(event, slug)` (existing auto-imported server util).
 - Produces:
   - `queueScanNotification(event: H3Event, link: Link): void` — the ONLY function middleware calls; fire-and-forget, never throws.
@@ -469,31 +473,31 @@ export function queueScanNotification(event: H3Event, link: Link): void {
 In `server/middleware/1.redirect.ts`, **text-link path** — find:
 
 ```ts
-        event.context.link = link
-        try {
-          await useAccessLog(event)
-        }
-        catch (error) {
-          console.error('Failed write access log:', error)
-        }
-        if (link.viewExpireSeconds)
-          return sendNoStoreHtml(renderTextPage(link))
+event.context.link = link
+try {
+  await useAccessLog(event)
+}
+catch (error) {
+  console.error('Failed write access log:', error)
+}
+if (link.viewExpireSeconds)
+  return sendNoStoreHtml(renderTextPage(link))
 ```
 
 Replace with:
 
 ```ts
-        event.context.link = link
-        try {
-          await useAccessLog(event)
-        }
-        catch (error) {
-          console.error('Failed write access log:', error)
-        }
-        if (link.notifyUrl)
-          queueScanNotification(event, link)
-        if (link.viewExpireSeconds)
-          return sendNoStoreHtml(renderTextPage(link))
+event.context.link = link
+try {
+  await useAccessLog(event)
+}
+catch (error) {
+  console.error('Failed write access log:', error)
+}
+if (link.notifyUrl)
+  queueScanNotification(event, link)
+if (link.viewExpireSeconds)
+  return sendNoStoreHtml(renderTextPage(link))
 ```
 
 **Redirect path** — find:
@@ -609,10 +613,12 @@ The spec places cleanup in the delete endpoint; implementing it inside
 in one place — same behavior, better location.
 
 **Files:**
+
 - Modify: `server/utils/link-store.ts` (`deleteLink`, lines 50-54)
 - Test script: `$SCRATCH/e2e-delete-cleanup.sh`
 
 **Interfaces:**
+
 - Consumes: `notifyStateKey(slug)` from Task 2 (auto-imported).
 - Produces: no new interfaces; `deleteLink` behavior now includes notify-state removal.
 
@@ -728,10 +734,12 @@ keys and currently fall back to English. Backfill them here since we're
 touching every locale file anyway.
 
 **Files:**
+
 - Modify: all 10 of `i18n/locales/{en-US,de-DE,fr-FR,id-ID,it-IT,pt-BR,pt-PT,vi-VN,zh-CN,zh-TW}.json` (via script)
 - Script: `$SCRATCH/i18n_notify.py`
 
 **Interfaces:**
+
 - Consumes: existing JSON structure — new form keys go under `links.form`, others under `links`.
 - Produces: keys Task 5/6 templates reference: `links.form.notifications`, `links.form.notify_url`, `links.form.notify_url_description`, `links.form.notify_url_placeholder`, `links.form.notify_cooldown`, `links.form.notify_cooldown_description`, `links.form.notify_cooldown_placeholder`, `links.notifications_on`.
 
@@ -891,9 +899,11 @@ Claude-Session: https://claude.ai/code/session_015P4j4jPVr74UfW1GW795FE"
 ### Task 5: Editor UI — "Notifications" accordion section
 
 **Files:**
+
 - Modify: `layers/dashboard/app/components/dashboard/links/editor/Advanced.vue` (add accordion item after the `geo` item, ~line 357; extend `defaultOpenItems`, ~lines 47-63)
 
 **Interfaces:**
+
 - Consumes: form fields `notifyUrl` / `notifyCooldownMinutes` (Task 1), i18n keys (Task 4), existing props `validateOptionalUrl`, `isInvalid`, `getAriaInvalid`, `formatErrors` (already passed to `Advanced.vue`).
 - Produces: user-visible editor section; no code interfaces.
 
@@ -902,24 +912,24 @@ Claude-Session: https://claude.ai/code/session_015P4j4jPVr74UfW1GW795FE"
 In `Advanced.vue`, find:
 
 ```ts
-  const geoVal = props.form.getFieldValue('geo')
-  if (Array.isArray(geoVal) && geoVal.length > 0) {
-    items.push('geo')
-  }
-  return items
+const geoVal = props.form.getFieldValue('geo')
+if (Array.isArray(geoVal) && geoVal.length > 0) {
+  items.push('geo')
+}
+return items
 ```
 
 Replace with:
 
 ```ts
-  const geoVal = props.form.getFieldValue('geo')
-  if (Array.isArray(geoVal) && geoVal.length > 0) {
-    items.push('geo')
-  }
-  if (props.form.getFieldValue('notifyUrl')) {
-    items.push('notifications')
-  }
-  return items
+const geoVal = props.form.getFieldValue('geo')
+if (Array.isArray(geoVal) && geoVal.length > 0) {
+  items.push('geo')
+}
+if (props.form.getFieldValue('notifyUrl')) {
+  items.push('notifications')
+}
+return items
 ```
 
 - [ ] **Step 2: Add the accordion section**
@@ -929,7 +939,9 @@ In `Advanced.vue`'s template, the last accordion item ends:
 ```vue
     <AccordionItem value="geo">
 ```
+
 …(its full block)…
+
 ```vue
     </AccordionItem>
   </Accordion>
@@ -1036,9 +1048,11 @@ Claude-Session: https://claude.ai/code/session_015P4j4jPVr74UfW1GW795FE"
 ### Task 6: Bell indicator on the link card
 
 **Files:**
+
 - Modify: `layers/dashboard/app/components/dashboard/links/Link.vue` (lucide import ~line 4; meta row template, before the final `<Separator orientation="vertical" />` + truncate span)
 
 **Interfaces:**
+
 - Consumes: `link.notifyUrl` (Task 1), i18n key `links.notifications_on` (Task 4).
 - Produces: user-visible badge; no code interfaces.
 
@@ -1062,30 +1076,39 @@ Find (end of the meta row, after the self-destruct template block):
 
 ```vue
             <Separator orientation="vertical" />
-            <span class="truncate">{{ isTextLink ? contentPreview : link.url }}</span>
+
+            <span class="truncate">
+{{ isTextLink ? contentPreview : link.url }}
+</span>
           </div>
 ```
 
 Replace with:
 
 ```vue
-            <template v-if="link.notifyUrl">
-              <Separator orientation="vertical" />
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger as-child>
-                    <span class="inline-flex items-center leading-5 whitespace-nowrap">
-                      <Bell aria-hidden="true" class="h-4 w-4" />
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{{ $t('links.notifications_on') }}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </template>
+<template v-if="link.notifyUrl">
+  <Separator orientation="vertical" />
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger as-child>
+        <span
+          class="inline-flex items-center leading-5 whitespace-nowrap"
+        >
+          <Bell aria-hidden="true" class="h-4 w-4" />
+        </span>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>{{ $t('links.notifications_on') }}</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+</template>
+
             <Separator orientation="vertical" />
-            <span class="truncate">{{ isTextLink ? contentPreview : link.url }}</span>
+
+            <span class="truncate">
+{{ isTextLink ? contentPreview : link.url }}
+</span>
           </div>
 ```
 
@@ -1109,10 +1132,12 @@ Claude-Session: https://claude.ai/code/session_015P4j4jPVr74UfW1GW795FE"
 ### Task 7: Full verification, browser walkthrough, push
 
 **Files:**
+
 - Create: `$SCRATCH/ui-walk.mjs` (browser check; scratch only, not committed)
 - No repo files modified unless fixes are needed.
 
 **Interfaces:**
+
 - Consumes: everything from Tasks 1-6.
 - Produces: verified feature; branch pushed.
 
@@ -1144,6 +1169,7 @@ Write `$SCRATCH/ui-walk.mjs`:
 
 ```js
 import { createRequire } from 'node:module'
+
 const require = createRequire('/tmp/claude-1001/-home-ubuntu-repos-Sink/cad5bc97-64e6-467e-87a9-d077dbedbaec/scratchpad/uitest/package.json')
 const { chromium } = require('playwright-core')
 
@@ -1155,9 +1181,9 @@ const SHOT = '/tmp/claude-1001/-home-ubuntu-repos-Sink/cad5bc97-64e6-467e-87a9-d
 const browser = await chromium.launch({ executablePath: EXE, headless: true, args: ['--no-sandbox'] })
 const page = await (await browser.newContext({ viewport: { width: 1200, height: 1400 } })).newPage()
 try {
-  await page.goto(BASE + '/', { waitUntil: 'domcontentloaded' })
+  await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' })
   await page.evaluate(t => localStorage.setItem('SinkSiteToken', t), TOKEN)
-  await page.goto(BASE + '/dashboard/links', { waitUntil: 'networkidle' })
+  await page.goto(`${BASE}/dashboard/links`, { waitUntil: 'networkidle' })
   await page.waitForTimeout(2500)
 
   await page.getByRole('button', { name: /Create Link/i }).first().click()
@@ -1171,7 +1197,7 @@ try {
   console.log('notifyUrl field:', urlField, '| cooldown field:', cooldownField)
 
   // fill and save
-  const slug = 'ui-notify-' + Math.floor(Math.random() * 9000 + 1000)
+  const slug = `ui-notify-${Math.floor(Math.random() * 9000 + 1000)}`
   await page.locator('#url').fill('https://example.com/')
   await page.locator('#slug').fill(slug)
   await page.locator('#notifyUrl').fill('https://ntfy.sh/ui-walk-topic')
@@ -1184,7 +1210,7 @@ try {
   const bell = await page.locator('svg.lucide-bell').count()
   console.log('bell icons on page:', bell)
   console.log(urlField === 1 && cooldownField === 1 && bell >= 1 ? 'UI_WALK_OK' : 'UI_WALK_FAIL')
-  console.log('CLEANUP_SLUG=' + slug)
+  console.log(`CLEANUP_SLUG=${slug}`)
 }
 catch (e) {
   console.log('UI_WALK_ERROR:', e.message)

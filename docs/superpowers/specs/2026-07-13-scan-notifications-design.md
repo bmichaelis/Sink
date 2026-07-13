@@ -45,17 +45,17 @@ sendScanNotification (server/utils/scan-notify.ts):
 
 ### Components
 
-| Unit | Responsibility |
-|---|---|
-| `server/utils/scan-notify.ts` (new) | All notification logic: bot check, cooldown state, payload formatting, outbound POST. Exports `sendScanNotification(event, link)`. |
-| `server/middleware/1.redirect.ts` | Two one-line hooks (`event.waitUntil(...)`) beside the existing `useAccessLog` call sites — redirect path and text-link path. |
-| `shared/schemas/link.ts` | Two new optional fields. |
-| `server/utils/link-processing.ts` | Add both fields to `editableOptionalLinkFields`. |
-| `server/api/link/delete.post.ts` | Also delete `notify:<slug>` KV key. |
-| `layers/dashboard/.../editor/Advanced.vue` | New "Notifications" accordion section (URL + cooldown fields). |
-| `layers/dashboard/.../editor/Form.vue` | Default values + submit mapping for the two fields. |
-| `layers/dashboard/.../links/Link.vue` | Bell icon in the card meta row when `notifyUrl` is set. |
-| `i18n/locales/*` (all 10) | New keys, plus backfill of earlier feature keys missing from de-DE, id-ID, it-IT, pt-BR, pt-PT. |
+| Unit                                       | Responsibility                                                                                                                     |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `server/utils/scan-notify.ts` (new)        | All notification logic: bot check, cooldown state, payload formatting, outbound POST. Exports `sendScanNotification(event, link)`. |
+| `server/middleware/1.redirect.ts`          | Two one-line hooks (`event.waitUntil(...)`) beside the existing `useAccessLog` call sites — redirect path and text-link path.      |
+| `shared/schemas/link.ts`                   | Two new optional fields.                                                                                                           |
+| `server/utils/link-processing.ts`          | Add both fields to `editableOptionalLinkFields`.                                                                                   |
+| `server/api/link/delete.post.ts`           | Also delete `notify:<slug>` KV key.                                                                                                |
+| `layers/dashboard/.../editor/Advanced.vue` | New "Notifications" accordion section (URL + cooldown fields).                                                                     |
+| `layers/dashboard/.../editor/Form.vue`     | Default values + submit mapping for the two fields.                                                                                |
+| `layers/dashboard/.../links/Link.vue`      | Bell icon in the card meta row when `notifyUrl` is set.                                                                            |
+| `i18n/locales/*` (all 10)                  | New keys, plus backfill of earlier feature keys missing from de-DE, id-ID, it-IT, pt-BR, pt-PT.                                    |
 
 ## Schema
 
@@ -86,11 +86,11 @@ Key `notify:<slug>`, value:
 
 ## Payload formats (auto-detected from `notifyUrl`)
 
-| Detection | Format |
-|---|---|
-| hostname is `ntfy.sh` | POST, plain-text body = message, header `X-Title: Scan: <slug>` |
-| hostname `discord.com`/`discordapp.com` with `/api/webhooks/` path | POST JSON `{ "content": <message> }` |
-| anything else | POST JSON: `{ slug, shortLink, count, total, country, city, device, browser, referer, timestamp }` |
+| Detection                                                          | Format                                                                                             |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| hostname is `ntfy.sh`                                              | POST, plain-text body = message, header `X-Title: Scan: <slug>`                                    |
+| hostname `discord.com`/`discordapp.com` with `/api/webhooks/` path | POST JSON `{ "content": <message> }`                                                               |
+| anything else                                                      | POST JSON: `{ slug, shortLink, count, total, country, city, device, browser, referer, timestamp }` |
 
 Message text (ntfy/Discord):
 
@@ -122,7 +122,7 @@ Bot scans return before touching KV state (they neither notify nor count).
 - **KV races:** two near-simultaneous scans may double-notify or miscount by
   one. Harmless at QR-scan volumes; Queues would fix it and is deliberately
   not used.
-- **Trailing batch:** scans during a cooldown are reported by the *next* scan
+- **Trailing batch:** scans during a cooldown are reported by the _next_ scan
   after the window. If traffic stops, the pending count waits until the next
   scan whenever it comes. A cron flush could report these sooner — out of
   scope, noted as a possible follow-up.

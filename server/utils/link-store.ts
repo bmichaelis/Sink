@@ -51,6 +51,7 @@ export async function deleteLink(event: H3Event, slug: string): Promise<void> {
   const { cloudflare } = event.context
   const { KV } = cloudflare.env
   await KV.delete(`link:${slug}`)
+  await KV.delete(notifyStateKey(slug))
 }
 
 export async function linkExists(event: H3Event, slug: string): Promise<boolean> {

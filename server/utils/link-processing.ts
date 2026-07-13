@@ -16,6 +16,8 @@ const editableOptionalLinkFields = [
   'content',
   'maxHits',
   'viewExpireSeconds',
+  'notifyUrl',
+  'notifyCooldownMinutes',
 ] as const satisfies readonly (keyof Link)[]
 
 interface LinkResponse {

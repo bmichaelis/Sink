@@ -56,6 +56,8 @@ export const LinkSchema = z.object({
   hitCount: z.number().int().nonnegative().default(0),
   viewExpireSeconds: z.number().int().positive().optional(),
   firstHitAt: z.number().int().safe().optional(),
+  notifyUrl: z.string().trim().url().max(2048).optional(),
+  notifyCooldownMinutes: z.number().int().nonnegative().max(1440).optional(),
 })
 
 export type Link = z.infer<typeof LinkSchema>

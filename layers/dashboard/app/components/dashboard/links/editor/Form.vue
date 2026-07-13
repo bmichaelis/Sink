@@ -46,6 +46,8 @@ const form = useForm({
     comment: props.link.comment ?? '',
     maxHits: props.link.maxHits ?? undefined,
     viewExpireSeconds: props.link.viewExpireSeconds ?? undefined,
+    notifyUrl: props.link.notifyUrl ?? '',
+    notifyCooldownMinutes: props.link.notifyCooldownMinutes ?? undefined,
     expiration: props.link.expiration
       ? unix2date(props.link.expiration)
       : undefined,
@@ -77,6 +79,8 @@ const form = useForm({
         ...(isText ? { content: value.content || undefined } : { url: value.url }),
         maxHits: value.maxHits || undefined,
         viewExpireSeconds: isText ? (value.viewExpireSeconds || undefined) : undefined,
+        notifyUrl: value.notifyUrl || undefined,
+        notifyCooldownMinutes: value.notifyUrl ? value.notifyCooldownMinutes : undefined,
         comment: value.comment || undefined,
         expiration: value.expiration
           ? date2unix(value.expiration, 'end')

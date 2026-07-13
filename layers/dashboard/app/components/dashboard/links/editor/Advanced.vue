@@ -59,6 +59,9 @@ const defaultOpenItems = computed(() => {
   if (Array.isArray(geoVal) && geoVal.length > 0) {
     items.push('geo')
   }
+  if (props.form.getFieldValue('notifyUrl')) {
+    items.push('notifications')
+  }
   return items
 })
 
@@ -351,6 +354,65 @@ async function aiOg() {
                 <Plus class="mr-2 h-4 w-4" /> {{ $t('links.form.add_geo_route') }}
               </Button>
             </div>
+          </props.form.Field>
+        </FieldGroup>
+      </AccordionContent>
+    </AccordionItem>
+
+    <AccordionItem value="notifications">
+      <AccordionTrigger :class="accordionTriggerClass">
+        {{ $t('links.form.notifications') }}
+      </AccordionTrigger>
+      <AccordionContent class="px-1">
+        <FieldGroup>
+          <props.form.Field
+            v-slot="{ field }"
+            name="notifyUrl"
+            :validators="{ onBlur: validateOptionalUrl }"
+          >
+            <Field :data-invalid="isInvalid(field)">
+              <FieldLabel :for="field.name">
+                {{ $t('links.form.notify_url') }}
+              </FieldLabel>
+              <FieldDescription class="text-xs">
+                {{ $t('links.form.notify_url_description') }}
+              </FieldDescription>
+              <Input
+                :id="field.name"
+                :name="field.name"
+                :model-value="field.state.value"
+                :aria-invalid="getAriaInvalid(field)"
+                :placeholder="$t('links.form.notify_url_placeholder')"
+                autocomplete="off"
+                @blur="field.handleBlur"
+                @input="field.handleChange(($event.target as HTMLInputElement).value)"
+              />
+              <FieldError
+                v-if="isInvalid(field)"
+                :errors="formatErrors(field.state.meta.errors)"
+              />
+            </Field>
+          </props.form.Field>
+
+          <props.form.Field v-slot="{ field }" name="notifyCooldownMinutes">
+            <Field>
+              <FieldLabel :for="field.name">
+                {{ $t('links.form.notify_cooldown') }}
+              </FieldLabel>
+              <FieldDescription class="text-xs">
+                {{ $t('links.form.notify_cooldown_description') }}
+              </FieldDescription>
+              <Input
+                :id="field.name"
+                :name="field.name"
+                type="number"
+                min="0"
+                :model-value="field.state.value"
+                :placeholder="$t('links.form.notify_cooldown_placeholder')"
+                @blur="field.handleBlur"
+                @input="field.handleChange(($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value))"
+              />
+            </Field>
           </props.form.Field>
         </FieldGroup>
       </AccordionContent>

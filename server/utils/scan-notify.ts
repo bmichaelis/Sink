@@ -83,6 +83,12 @@ export function formatScanMessage(slug: string, location: string, device: string
   return message
 }
 
+async function postChecked(url: string, init: RequestInit): Promise<void> {
+  const response = await fetch(url, init)
+  if (!response.ok)
+    throw new Error(`notification endpoint responded ${response.status}`)
+}
+
 async function postNotification(event: H3Event, link: Link, count: number, total: number): Promise<void> {
   const notifyUrl = link.notifyUrl!
   const channel = detectChannel(notifyUrl)
@@ -96,7 +102,7 @@ async function postNotification(event: H3Event, link: Link, count: number, total
   const signal = AbortSignal.timeout(FETCH_TIMEOUT_MS)
 
   if (channel === 'ntfy') {
-    await fetch(notifyUrl, {
+    await postChecked(notifyUrl, {
       method: 'POST',
       body: message,
       headers: { 'X-Title': `Scan: ${link.slug}` },
@@ -106,7 +112,7 @@ async function postNotification(event: H3Event, link: Link, count: number, total
   }
 
   if (channel === 'discord') {
-    await fetch(notifyUrl, {
+    await postChecked(notifyUrl, {
       method: 'POST',
       body: JSON.stringify({ content: message }),
       headers: { 'Content-Type': 'application/json' },
@@ -115,7 +121,7 @@ async function postNotification(event: H3Event, link: Link, count: number, total
     return
   }
 
-  await fetch(notifyUrl, {
+  await postChecked(notifyUrl, {
     method: 'POST',
     body: JSON.stringify({
       slug: link.slug,
@@ -142,7 +148,7 @@ async function sendScanNotification(event: H3Event, link: Link): Promise<void> {
     const { cloudflare } = event.context
     const { KV } = cloudflare.env
     const key = notifyStateKey(link.slug)
-    const raw = await KV.get(key, { type: 'json' }) as Partial<NotifyState> | null
+    const raw = await KV.get(key, { type: 'json' }).catch(() => null) as Partial<NotifyState> | null
     const lastNotifiedAt = Number(raw?.lastNotifiedAt) || 0
     const pending = Number(raw?.pending) || 0
     const total = (Number(raw?.total) || 0) + 1
@@ -151,8 +157,15 @@ async function sendScanNotification(event: H3Event, link: Link): Promise<void> {
     const now = Math.floor(Date.now() / 1000)
 
     if (now - lastNotifiedAt >= cooldownSeconds) {
-      await postNotification(event, link, pending + 1, total)
-      await KV.put(key, JSON.stringify({ lastNotifiedAt: now, pending: 0, total } satisfies NotifyState))
+      try {
+        await postNotification(event, link, pending + 1, total)
+        await KV.put(key, JSON.stringify({ lastNotifiedAt: now, pending: 0, total } satisfies NotifyState))
+      }
+      catch (error) {
+        // Failed delivery: keep the batch pending so the next scan retries it.
+        console.error('[scan-notify] Delivery failed:', error)
+        await KV.put(key, JSON.stringify({ lastNotifiedAt, pending: pending + 1, total } satisfies NotifyState))
+      }
     }
     else {
       await KV.put(key, JSON.stringify({ lastNotifiedAt, pending: pending + 1, total } satisfies NotifyState))

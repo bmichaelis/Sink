@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CounterData, Link } from '@/types'
 import { useClipboard } from '@vueuse/core'
-import { CalendarPlus2, Copy, CopyCheck, Eraser, Eye, FileText, Flame, Gauge, Hourglass, Link as LinkIcon, MousePointerClick, QrCode, RotateCcw, ShieldAlert, SquareChevronDown, SquarePen, Timer, Users } from 'lucide-vue-next'
+import { Bell, CalendarPlus2, Copy, CopyCheck, Eraser, Eye, FileText, Flame, Gauge, Hourglass, Link as LinkIcon, MousePointerClick, QrCode, RotateCcw, ShieldAlert, SquareChevronDown, SquarePen, Timer, Users } from 'lucide-vue-next'
 import { parseURL } from 'ufo'
 import { toast } from 'vue-sonner'
 
@@ -333,8 +333,31 @@ function copyLink() {
                 </Tooltip>
               </TooltipProvider>
             </template>
+            <template v-if="link.notifyUrl">
+              <Separator orientation="vertical" />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger as-child>
+                    <span
+                      class="
+                        inline-flex items-center leading-5 whitespace-nowrap
+                      "
+                    >
+                      <Bell aria-hidden="true" class="h-4 w-4" />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{{ $t('links.notifications_on') }}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </template>
+
             <Separator orientation="vertical" />
-            <span class="truncate">{{ isTextLink ? contentPreview : link.url }}</span>
+
+            <span class="truncate">
+              {{ isTextLink ? contentPreview : link.url }}
+            </span>
           </div>
           <div
             v-if="countersMap" class="flex h-5 w-full space-x-2 text-sm"

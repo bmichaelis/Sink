@@ -84,7 +84,12 @@ export function formatScanMessage(slug: string, location: string, device: string
 }
 
 async function postChecked(url: string, init: RequestInit): Promise<void> {
-  const response = await fetch(url, init)
+  // Workers fetch sends no User-Agent by default; some services (e.g. ntfy.sh)
+  // drop UA-less datacenter requests as abuse. Identify ourselves politely.
+  const response = await fetch(url, {
+    ...init,
+    headers: { 'User-Agent': 'sink-scan-notify/1.0', ...init.headers },
+  })
   if (!response.ok)
     throw new Error(`notification endpoint responded ${response.status}`)
 }

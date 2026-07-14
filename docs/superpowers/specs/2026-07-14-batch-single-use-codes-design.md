@@ -137,10 +137,11 @@ with components under `layers/dashboard/app/components/dashboard/batches/`:
 - **Detail view** (query param, like `link.vue`): header with progress +
   actions (Print sheet, Download ZIP, Delete batch with confirm), grid of
   codes: `#seq`, short link + copy, claimed status (+ time), per-code Reset.
-- **Print sheet**: `/dashboard/batches?print=<id>` renders a printable view
+- **Print sheet**: a dedicated layout-free page
+  `/dashboard/batches/print?id=<id>` (so the dashboard chrome never prints)
   — a grid of QR codes (existing client-side QR renderer, same as
-  `QRCode.vue`) with code number and short URL under each, styled with
-  `@media print` CSS; the user prints to paper/PDF from the browser.
+  `QRCode.vue`) with code number and short URL under each, print-friendly
+  CSS; the user prints to paper/PDF from the browser.
 - **ZIP export**: client-side; render each QR to a PNG canvas, zip with the
   `client-zip` package (tiny, streaming), download as
   `<batch-name>-codes.zip` containing `<seq>-<slug>.png`.

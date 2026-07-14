@@ -61,7 +61,8 @@ type NotifyChannel = 'ntfy' | 'discord' | 'generic'
 export function detectChannel(notifyUrl: string): NotifyChannel {
   try {
     const { hostname, pathname } = new URL(notifyUrl)
-    if (hostname === 'ntfy.sh')
+    // ntfy.sh or self-hosted ntfy on an "ntfy." subdomain (e.g. ntfy.example.com)
+    if (hostname === 'ntfy.sh' || hostname.startsWith('ntfy.'))
       return 'ntfy'
     if ((hostname === 'discord.com' || hostname === 'discordapp.com') && pathname.includes('/api/webhooks/'))
       return 'discord'

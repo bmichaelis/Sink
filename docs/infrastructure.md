@@ -26,9 +26,14 @@ phones (ntfy app) ◄── subscribe to topic "scans" ────────�
 - The custom domain is managed via the account API / dashboard, **not** a
   `routes` entry — the deploy token lacks Workers Routes permission and a
   config entry would fail every deploy.
-- **Deploy:** `pnpm build && npx wrangler deploy`.
+- **Deploy:** automatic — every push to `master` runs
+  `.github/workflows/deploy.yml` (install → build → preset guard →
+  `wrangler deploy`), authenticated by the `CLOUDFLARE_API_TOKEN` repo
+  secret. Manual fallback: `pnpm build && npx wrangler deploy`.
   ⚠️ Never build with `CI=true` — it silently switches the Nitro preset from
-  `cloudflare-module` to node-server and produces a non-Worker bundle.
+  `cloudflare-module` to node-server and produces a non-Worker bundle. (The
+  workflow handles this by forcing `NITRO_PRESET=cloudflare-module` and
+  refusing to deploy any other preset.)
 - **Bindings** (see `wrangler.jsonc`): KV namespace, Analytics Engine dataset
   `kinda_sink`, R2 bucket `kinda-sink`, AI, assets.
 - **Vars:** `NUXT_DATASET=kinda_sink` (stats queries MUST read the same

@@ -15,7 +15,7 @@ export interface LinkSearchItem {
 // Form data derived from Link, with DateValue for expiration and required strings for optional fields.
 // hitCount/firstHitAt are internal counters managed server-side, so they are excluded from the form.
 // Optional number fields are typed explicitly so `undefined` survives exactOptionalPropertyTypes.
-type LinkFormFields = Omit<Link, 'id' | 'createdAt' | 'updatedAt' | 'expiration' | 'geo' | 'hitCount' | 'firstHitAt' | 'maxHits' | 'viewExpireSeconds' | 'notifyCooldownMinutes'> & {
+type LinkFormFields = Omit<Link, 'id' | 'createdAt' | 'updatedAt' | 'expiration' | 'geo' | 'hitCount' | 'firstHitAt' | 'maxHits' | 'viewExpireSeconds' | 'notifyCooldownMinutes' | 'batchId' | 'batchSeq' | 'batchMode' | 'claimedAt'> & {
   expiration: DateValue | undefined
   geo: { country: string, url: string }[]
   maxHits: number | undefined

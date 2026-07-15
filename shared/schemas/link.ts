@@ -27,6 +27,8 @@ export const EditLinkPasswordSchema = z.string().trim().max(128).refine(
   'masked password cannot be submitted',
 ).optional()
 
+export const BatchModeEnum = z.enum(['redirect', 'checkin'])
+
 export const LinkTypeEnum = z.enum(['redirect', 'text'])
 
 export const LinkSchema = z.object({
@@ -58,6 +60,10 @@ export const LinkSchema = z.object({
   firstHitAt: z.number().int().safe().optional(),
   notifyUrl: z.string().trim().url().max(2048).optional(),
   notifyCooldownMinutes: z.number().int().nonnegative().max(1440).optional(),
+  batchId: z.string().trim().max(26).optional(),
+  batchSeq: z.number().int().positive().optional(),
+  batchMode: BatchModeEnum.optional(),
+  claimedAt: z.number().int().safe().optional(),
 })
 
 export type Link = z.infer<typeof LinkSchema>
@@ -66,9 +72,12 @@ export type Link = z.infer<typeof LinkSchema>
 // Applied at the API boundary (create/edit/upsert) rather than on LinkSchema
 // itself, so LinkSchema stays a plain ZodObject and `.shape`/`.extend` keep working.
 export function refineLinkContent(
-  data: { type?: 'redirect' | 'text', url?: string, content?: string },
+  data: { type?: 'redirect' | 'text', url?: string, content?: string, batchMode?: 'redirect' | 'checkin' },
   ctx: z.RefinementCtx,
 ): void {
+  // Check-in batch codes have no destination URL by design.
+  if (data.batchMode === 'checkin')
+    return
   const type = data.type ?? 'redirect'
   if (type === 'redirect' && !data.url) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'URL is required for redirect links', path: ['url'] })

@@ -290,9 +290,9 @@ export default eventHandler(async (event) => {
       link = await getLink(event, slug, linkCacheTtl)
     }
 
-    // Self-destruct links and check-in codes must read fresh (bypass KV edge
-    // cache) so firstHitAt / claimedAt are accurate.
-    if (link?.viewExpireSeconds || link?.batchMode === 'checkin') {
+    // Self-destruct links and batch codes must read fresh (bypass KV edge
+    // cache) so firstHitAt / claimedAt / hitCount are accurate.
+    if (link?.viewExpireSeconds || link?.batchMode) {
       link = await getLink(event, caseSensitive ? slug : lowerCaseSlug)
     }
 
@@ -358,8 +358,9 @@ export default eventHandler(async (event) => {
         }
         const writePromise = putLink(event, updatedLink)
           .catch((err: unknown) => console.error('Failed to update hit count:', err))
-        // For self-destruct links, await the write so firstHitAt is persisted before responding.
-        if (link.viewExpireSeconds)
+        // For self-destruct links and single-use voucher codes, await the write
+        // so firstHitAt / the burned hitCount are persisted before responding.
+        if (link.viewExpireSeconds || link.batchMode === 'redirect')
           await writePromise
         link = updatedLink
       }

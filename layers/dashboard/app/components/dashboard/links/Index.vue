@@ -75,7 +75,7 @@ async function getLinks() {
         cursor,
       },
     })
-    const newLinks = data.links.filter(Boolean)
+    const newLinks = data.links.filter((l): l is Link => Boolean(l) && !l.batchId)
     links.value = links.value.concat(newLinks)
     cursor = data.cursor
     listComplete.value = data.list_complete

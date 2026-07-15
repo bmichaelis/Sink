@@ -17,6 +17,12 @@ const platformItems = computed<NavItem[]>(() => [
     isActive: isActive('links'),
   },
   {
+    title: 'nav.batches',
+    url: '/dashboard/batches',
+    icon: DASHBOARD_ROUTES.batches.icon,
+    isActive: isActive('batches'),
+  },
+  {
     title: 'nav.analysis',
     url: '/dashboard/analysis',
     icon: DASHBOARD_ROUTES.analysis.icon,

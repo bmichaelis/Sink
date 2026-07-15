@@ -290,8 +290,9 @@ export default eventHandler(async (event) => {
       link = await getLink(event, slug, linkCacheTtl)
     }
 
-    // Self-destruct links must read fresh (bypass KV edge cache) so firstHitAt is accurate.
-    if (link?.viewExpireSeconds) {
+    // Self-destruct links and check-in codes must read fresh (bypass KV edge
+    // cache) so firstHitAt / claimedAt are accurate.
+    if (link?.viewExpireSeconds || link?.batchMode === 'checkin') {
       link = await getLink(event, caseSensitive ? slug : lowerCaseSlug)
     }
 
@@ -310,6 +311,37 @@ export default eventHandler(async (event) => {
       const query = getQuery(event)
       const shouldRedirectWithQuery = link.redirectWithQuery ?? redirectWithQuery
       const buildTarget = (url: string) => shouldRedirectWithQuery ? withQuery(url, query) : url
+
+      // Check-in batch codes: GET renders a read-only status page; the
+      // confirm-button POST (checkin=true) claims with an awaited write.
+      // Runs before the hit-limit/self-destruct block so stray maxHits /
+      // viewExpireSeconds fields can never mutate or expire a check-in code.
+      if (link.batchMode === 'checkin') {
+        event.context.link = link
+        try {
+          await useAccessLog(event)
+        }
+        catch (error) {
+          console.error('Failed write access log:', error)
+        }
+
+        const batch = link.batchId ? await getBatch(event, link.batchId) : null
+        const batchName = batch?.name ?? ''
+
+        const now = Math.floor(Date.now() / 1000)
+        if (event.method === 'POST') {
+          const body = await readBody(event).catch(() => null)
+          if (body?.checkin === 'true') {
+            if (link.claimedAt)
+              return sendNoStoreHtml(renderCheckinPage(link, batchName, 'used'))
+            const claimedLink: Link = { ...link, claimedAt: now }
+            await putLink(event, claimedLink)
+            return sendNoStoreHtml(renderCheckinPage(claimedLink, batchName, 'claimed-now'))
+          }
+        }
+
+        return sendNoStoreHtml(renderCheckinPage(link, batchName, link.claimedAt ? 'used' : 'valid'))
+      }
 
       // --- Hit limit + self-destruct handling (applies to redirect and text links) ---
       if (link.maxHits !== undefined && (link.hitCount || 0) >= link.maxHits) {
@@ -330,34 +362,6 @@ export default eventHandler(async (event) => {
         if (link.viewExpireSeconds)
           await writePromise
         link = updatedLink
-      }
-
-      // Check-in batch codes: GET renders a read-only status page; the
-      // confirm-button POST (checkin=true) claims with an awaited write.
-      if (link.batchMode === 'checkin') {
-        event.context.link = link
-        try {
-          await useAccessLog(event)
-        }
-        catch (error) {
-          console.error('Failed write access log:', error)
-        }
-
-        const batch = link.batchId ? await getBatch(event, link.batchId) : null
-        const batchName = batch?.name ?? ''
-
-        if (event.method === 'POST') {
-          const body = await readBody(event).catch(() => null)
-          if (body?.checkin === 'true') {
-            if (link.claimedAt)
-              return sendNoStoreHtml(renderCheckinPage(link, batchName, 'used'))
-            const claimedLink: Link = { ...link, claimedAt: now }
-            await putLink(event, claimedLink)
-            return sendNoStoreHtml(renderCheckinPage(claimedLink, batchName, 'claimed-now'))
-          }
-        }
-
-        return sendNoStoreHtml(renderCheckinPage(link, batchName, link.claimedAt ? 'used' : 'valid'))
       }
 
       // Text links render their content instead of redirecting.

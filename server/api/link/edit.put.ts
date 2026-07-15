@@ -63,12 +63,19 @@ export default eventHandler(async (event) => {
   const newLink = mergeEditableLink(existingLink, link)
   await applyEditableLinkPassword(newLink, link.password)
 
-  // Removing a notify URL should clear its accumulated notification state,
-  // so re-enabling later starts fresh instead of resurrecting an old total.
-  if (existingLink.notifyUrl && !newLink.notifyUrl)
-    await deleteNotifyState(event, newLink.slug)
-
   await putLink(event, newLink)
+
+  // Removing a notify URL clears its accumulated state so re-enabling starts
+  // fresh. Best-effort: a KV hiccup here must not fail the already-persisted edit.
+  if (existingLink.notifyUrl && !newLink.notifyUrl) {
+    try {
+      await deleteNotifyState(event, newLink.slug)
+    }
+    catch (error) {
+      console.error('[scan-notify] Failed to clear notify state on edit:', error)
+    }
+  }
+
   setResponseStatus(event, 201)
   return buildLinkResponse(event, newLink)
 })

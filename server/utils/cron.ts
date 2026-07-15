@@ -3,7 +3,7 @@
 // exposes it; otherwise falls back to matching the current UTC hour (and day),
 // which is unambiguous here because our two crons run at different hours.
 export function cronFired(event: unknown, cronExpr: string, utcHour: number, utcDay?: number): boolean {
-  const cron = (event as { cron?: unknown })?.cron
+  const cron = (event as { controller?: { cron?: unknown } })?.controller?.cron
   if (typeof cron === 'string')
     return cron === cronExpr
   const now = new Date()

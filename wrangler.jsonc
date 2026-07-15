@@ -60,6 +60,9 @@
     }
   ],
   "triggers": {
-    "crons": ["0 0 * * *"] // Run backup task daily at 00:00 UTC
+    "crons": [
+      "0 0 * * *", // Daily backup at 00:00 UTC
+      "0 14 * * 1" // Weekly analytics digest, Mondays at 14:00 UTC (8am MT)
+    ]
   }
 }

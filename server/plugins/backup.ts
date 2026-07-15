@@ -2,9 +2,9 @@
 
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('cloudflare:scheduled', async (event) => {
-    // Only run on the daily backup cron; other crons (e.g. the weekly digest)
-    // share this hook and must not trigger a backup.
-    if (!cronFired(event, '0 0 * * *', 0))
+    // Skip only the weekly digest cron; anything else still backs up (fail-open,
+    // so an unexpected cron string can never silently disable backups).
+    if (cronFired(event, '0 14 * * 1', 14, 1))
       return
 
     const config = useRuntimeConfig()

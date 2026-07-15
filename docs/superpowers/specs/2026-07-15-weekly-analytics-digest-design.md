@@ -35,7 +35,9 @@ Manual trigger (testing): POST /api/digest (auth) runs the same
 buildWeeklyDigest + formatDigest + postDigest path.
 ```
 
-The backup plugin (`server/plugins/backup.ts`) is untouched; the digest is an
+The backup plugin (`server/plugins/backup.ts`) gains a fail-open cron guard: it
+skips only the weekly digest cron, so that cron no longer triggers a redundant
+backup while any other (or unrecognized) cron still backs up. The digest is an
 independent second subscriber to the same hook.
 
 ## Components

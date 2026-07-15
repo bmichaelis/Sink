@@ -13,8 +13,8 @@ interface DigestConfig {
   dataset: string
 }
 
-async function queryAE(accountId: string, apiToken: string, sql: string): Promise<Array<Record<string, string>>> {
-  const res = await $fetch<{ data?: Array<Record<string, string>> }>(
+async function queryAE(accountId: string, apiToken: string, sql: string): Promise<Array<Record<string, string | number | null>>> {
+  const res = await $fetch<{ data?: Array<Record<string, string | number | null>> }>(
     `https://api.cloudflare.com/client/v4/accounts/${accountId}/analytics_engine/sql`,
     {
       method: 'POST',
@@ -46,8 +46,8 @@ export async function buildWeeklyDigest(config: DigestConfig): Promise<DigestDat
     visitors: Number(cur[0]?.visitors) || 0,
     prevVisits: Number(prev[0]?.visits) || 0,
     prevVisitors: Number(prev[0]?.visitors) || 0,
-    topLinks: links.filter(r => r.slug).map(r => ({ slug: r.slug as string, visits: Number(r.visits) || 0 })),
-    topCountries: countries.filter(c => c.country).map(r => ({ country: r.country as string, visits: Number(r.visits) || 0 })),
+    topLinks: links.filter(r => r.slug).map(r => ({ slug: String(r.slug), visits: Number(r.visits) || 0 })),
+    topCountries: countries.filter(r => r.country).map(r => ({ country: String(r.country), visits: Number(r.visits) || 0 })),
   }
 }
 

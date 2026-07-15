@@ -1,5 +1,3 @@
-/// <reference path="../../worker-configuration.d.ts" />
-
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('cloudflare:scheduled', async (event) => {
     const config = useRuntimeConfig()

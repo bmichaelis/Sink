@@ -3,6 +3,15 @@ import type { BatchCodeStatus, BatchRecord } from '#shared/schemas/batch'
 
 definePageMeta({
   layout: false,
+  // Explicit path override: this file lives as `batches-print.vue`, a
+  // sibling of `batches.vue`, rather than inside a `batches/` directory.
+  // Nuxt's file-based router auto-nests `pages/dashboard/batches/print.vue`
+  // as a child route of `pages/dashboard/batches.vue`, and since
+  // batches.vue has no <NuxtPage /> outlet, that nested route never
+  // renders (the parent keeps rendering its own detail/index view using
+  // route.query.id). Keeping the file out of that directory avoids the
+  // collision while `path` below preserves the original public URL.
+  path: '/dashboard/batches/print',
 })
 
 const route = useRoute()

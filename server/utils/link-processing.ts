@@ -13,6 +13,7 @@ const editableOptionalLinkFields = [
   'expiration',
   'unsafe',
   'geo',
+  'schedule',
   'content',
   'maxHits',
   'viewExpireSeconds',

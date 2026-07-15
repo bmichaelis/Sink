@@ -54,6 +54,12 @@ export const LinkSchema = z.object({
   password: LinkPasswordSchema.optional(),
   unsafe: z.boolean().optional(),
   geo: GeoSchema.optional(),
+  // Time-based destinations: each entry supplies the URL *until* its `until`
+  // instant. Once every entry has passed, `url` (the final destination) is used.
+  schedule: z.array(z.object({
+    until: z.number().int().safe(),
+    url: z.string().trim().url().max(2048),
+  })).max(10).optional(),
   maxHits: z.number().int().positive().optional(),
   hitCount: z.number().int().nonnegative().default(0),
   viewExpireSeconds: z.number().int().positive().optional(),

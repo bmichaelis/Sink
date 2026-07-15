@@ -254,6 +254,11 @@
       "og_image": "圖片",
       "geo_routing": "地理跳轉",
       "add_geo_route": "新增地理跳轉",
+      "schedule": "定時目標網址",
+      "schedule_description": "在指定時間之前將訪客導向其他網址。最後一筆記錄過期後，將使用連結的主要網址。",
+      "schedule_until": "截止時間",
+      "schedule_url": "目標網址",
+      "add_schedule_entry": "新增定時目標",
       "country_code": "國家/地區代碼 (例如 TW)",
       "select_country": "選擇國家/地區",
       "search_country": "搜尋國家/地區...",
@@ -324,7 +329,8 @@
     "reset_confirm_desc": "這將重置訪問次數和自毀計時器，允許連結再次被查看。",
     "reset_success": "連結重置成功",
     "reset_failed": "連結重置失敗",
-    "notifications_on": "通知已開啟"
+    "notifications_on": "通知已開啟",
+    "scheduled_destinations": "定時目標已設定"
   },
   "check": {
     "title": "連結檢測",

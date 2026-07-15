@@ -37,6 +37,18 @@ function removeGeoRoute(routes: GeoRoute[], index: number | string) {
   return routes.filter((_, routeIndex) => routeIndex !== targetIndex)
 }
 
+type ScheduleEntry = LinkFormData['schedule'][number]
+
+function updateScheduleEntry(entries: ScheduleEntry[], index: number | string, value: Partial<ScheduleEntry>) {
+  const targetIndex = Number(index)
+  return entries.map((entry, entryIndex) => entryIndex === targetIndex ? { ...entry, ...value } : entry)
+}
+
+function removeScheduleEntry(entries: ScheduleEntry[], index: number | string) {
+  const targetIndex = Number(index)
+  return entries.filter((_, entryIndex) => entryIndex !== targetIndex)
+}
+
 function formatPasswordDisplay(password: string) {
   return isMaskedLinkPassword(password)
     ? password.replace(LINK_PASSWORD_MASK_PREFIX, '')
@@ -58,6 +70,10 @@ const defaultOpenItems = computed(() => {
   const geoVal = props.form.getFieldValue('geo')
   if (Array.isArray(geoVal) && geoVal.length > 0) {
     items.push('geo')
+  }
+  const scheduleVal = props.form.getFieldValue('schedule')
+  if (Array.isArray(scheduleVal) && scheduleVal.length > 0) {
+    items.push('schedule')
   }
   if (props.form.getFieldValue('notifyUrl')) {
     items.push('notifications')
@@ -352,6 +368,58 @@ async function aiOg() {
               </div>
               <Button type="button" variant="outline" size="sm" @click="field.handleChange([...field.state.value, { country: '', url: '' }])">
                 <Plus class="mr-2 h-4 w-4" /> {{ $t('links.form.add_geo_route') }}
+              </Button>
+            </div>
+          </props.form.Field>
+        </FieldGroup>
+      </AccordionContent>
+    </AccordionItem>
+
+    <AccordionItem value="schedule">
+      <AccordionTrigger :class="accordionTriggerClass">
+        {{ $t('links.form.schedule') }}
+      </AccordionTrigger>
+      <AccordionContent class="px-1">
+        <FieldGroup>
+          <props.form.Field v-slot="{ field }" name="schedule">
+            <div class="space-y-2">
+              <FieldDescription class="text-xs">
+                {{ $t('links.form.schedule_description') }}
+              </FieldDescription>
+              <div
+                v-for="(item, i) in field.state.value" :key="i" class="
+                  flex flex-col gap-2
+                  sm:flex-row sm:items-start
+                "
+              >
+                <Field
+                  class="
+                    w-full
+                    sm:w-56
+                  "
+                >
+                  <Input
+                    type="datetime-local"
+                    :model-value="item.until === undefined ? '' : unix2datetimeLocal(item.until)"
+                    :aria-label="$t('links.form.schedule_until')"
+                    @input="field.handleChange(updateScheduleEntry(field.state.value, i, { until: datetimeLocal2unix(($event.target as HTMLInputElement).value) }))"
+                  />
+                </Field>
+                <Field class="flex-1">
+                  <Input
+                    :model-value="item.url"
+                    placeholder="https://..."
+                    autocomplete="url"
+                    :aria-label="$t('links.form.schedule_url')"
+                    @input="field.handleChange(updateScheduleEntry(field.state.value, i, { url: ($event.target as HTMLInputElement).value }))"
+                  />
+                </Field>
+                <Button type="button" variant="ghost" size="icon" @click="field.handleChange(removeScheduleEntry(field.state.value, i))">
+                  <Trash2 class="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </div>
+              <Button type="button" variant="outline" size="sm" @click="field.handleChange([...field.state.value, { until: undefined, url: '' }])">
+                <Plus class="mr-2 h-4 w-4" /> {{ $t('links.form.add_schedule_entry') }}
               </Button>
             </div>
           </props.form.Field>

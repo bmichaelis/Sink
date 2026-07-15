@@ -25,6 +25,9 @@
     "NUXT_DATASET": "kinda_sink",
     // 302 (temporary) so redirects aren't browser/proxy-cached — every scan hits the
     // worker and is logged, and link destinations can be changed without stale caches.
+    // Scheduled destinations REQUIRE this: a 301/308 gets cached by the visitor's own
+    // browser, so a scan before a cutoff keeps resolving to the old phase from cache
+    // and the worker (and the schedule check) is never hit again.
     "NUXT_REDIRECT_STATUS_CODE": "302"
   },
   "observability": {

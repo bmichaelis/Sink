@@ -174,7 +174,7 @@ Use `describe.sequential` for tests that share state (most API tests).
 - Use shadcn-vue from `app/components/ui/` - **Never edit** (auto-generated)
 - Use `ResponsiveModal` for mobile-optimized dialogs
 - Use Tailwind CSS v4 for styling (`@import 'tailwindcss'` syntax)
-- Use static English for `aria-label` (no `$t()` translations)
+- Use `$t()` for `aria-label` when the control sits in a translated form and has no visible label of its own — a hardcoded English label would otherwise be the only untranslated string the user meets. Static English is fine elsewhere (icon-only buttons in app chrome, dev-facing affordances)
 - Icons from `lucide-vue-next`
 
 ## Commits

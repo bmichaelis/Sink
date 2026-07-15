@@ -363,7 +363,7 @@ export default eventHandler(async (event) => {
         return renderTextPage(link)
       }
 
-      let targetUrl = link.url!
+      let targetUrl = resolveScheduledUrl(link, now)
       const country = event.context.cloudflare?.request?.cf?.country
       if (country && typeof country === 'string' && link.geo?.[country.toUpperCase()]) {
         targetUrl = link.geo[country.toUpperCase()]!

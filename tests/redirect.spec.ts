@@ -36,7 +36,7 @@ describe('/', () => {
       },
     })
 
-    expect(response.status).toBe(301)
+    expect(response.status).toBe(302)
     expect(response.headers.get('Location')).toBe(apple)
   })
 
@@ -55,7 +55,7 @@ describe('/', () => {
     const options: CfRequestInit = { redirect: 'manual', cf: { country: 'CN' } }
     const response = await fetch(`/${slug}`, options as RequestInit)
 
-    expect(response.status).toBe(301)
+    expect(response.status).toBe(302)
     expect(response.headers.get('Location')).toBe(cnUrl)
   })
 
@@ -74,7 +74,7 @@ describe('/', () => {
     const options: CfRequestInit = { redirect: 'manual', cf: { country: 'US' } }
     const response = await fetch(`/${slug}`, options as RequestInit)
 
-    expect(response.status).toBe(301)
+    expect(response.status).toBe(302)
     expect(response.headers.get('Location')).toBe(defaultUrl)
   })
 
@@ -144,8 +144,60 @@ describe('/', () => {
     }
     const response = await fetch(`/${slug}`, options as RequestInit)
 
-    expect(response.status).toBe(301)
+    expect(response.status).toBe(302)
     expect(response.headers.get('Location')).toBe(apple)
+  })
+
+  it('redirects to scheduled URL when cutoff is in the future', async () => {
+    const slug = `schedule-future-${crypto.randomUUID()}`
+    const now = Math.floor(Date.now() / 1000)
+
+    const createResponse = await postJson('/api/link/create', {
+      url: 'https://example.com/photos',
+      slug,
+      schedule: [{ until: now + 86400, url: 'https://example.com/rsvp' }],
+    })
+    expect(createResponse.status).toBe(201)
+    createdSlugs.push(slug)
+
+    const response = await fetch(`/${slug}`, { redirect: 'manual' })
+
+    expect(response.status).toBe(302)
+    expect(response.headers.get('Location')).toBe('https://example.com/rsvp')
+  })
+
+  it('redirects to base URL when the only schedule cutoff is in the past', async () => {
+    const slug = `schedule-past-${crypto.randomUUID()}`
+    const now = Math.floor(Date.now() / 1000)
+
+    const createResponse = await postJson('/api/link/create', {
+      url: 'https://example.com/photos',
+      slug,
+      schedule: [{ until: now - 86400, url: 'https://example.com/rsvp' }],
+    })
+    expect(createResponse.status).toBe(201)
+    createdSlugs.push(slug)
+
+    const response = await fetch(`/${slug}`, { redirect: 'manual' })
+
+    expect(response.status).toBe(302)
+    expect(response.headers.get('Location')).toBe('https://example.com/photos')
+  })
+
+  it('redirects to base URL when there is no schedule', async () => {
+    const slug = `schedule-none-${crypto.randomUUID()}`
+
+    const createResponse = await postJson('/api/link/create', {
+      url: 'https://example.com/photos',
+      slug,
+    })
+    expect(createResponse.status).toBe(201)
+    createdSlugs.push(slug)
+
+    const response = await fetch(`/${slug}`, { redirect: 'manual' })
+
+    expect(response.status).toBe(302)
+    expect(response.headers.get('Location')).toBe('https://example.com/photos')
   })
 })
 

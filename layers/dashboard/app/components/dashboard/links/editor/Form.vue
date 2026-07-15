@@ -61,6 +61,7 @@ const form = useForm({
     password: props.link.password ?? '',
     unsafe: props.link.unsafe ?? false,
     geo: props.link.geo ? Object.entries(props.link.geo).map(([country, url]) => ({ country, url })) : [],
+    schedule: (props.link.schedule ?? []).map(s => ({ until: s.until as number | undefined, url: s.url })),
   } satisfies LinkFormData,
   onSubmit: async ({ value }) => {
     try {
@@ -72,6 +73,11 @@ const form = useForm({
           geoRecord[country] = url
         }
       })
+      // Drop half-filled rows (a time with no URL, or vice versa) rather than
+      // failing validation on something the user is still editing.
+      const scheduleEntries = (value.schedule ?? [])
+        .filter((s): s is { until: number, url: string } => typeof s.until === 'number' && s.url.trim() !== '')
+        .map(s => ({ until: s.until, url: s.url.trim() }))
       const isText = value.type === 'text'
       const linkData = {
         type: value.type,
@@ -95,6 +101,7 @@ const form = useForm({
         password: getPasswordSubmitValue(value.password),
         unsafe: props.isEdit ? value.unsafe : value.unsafe || undefined,
         geo: Object.keys(geoRecord).length > 0 ? geoRecord : undefined,
+        schedule: scheduleEntries.length > 0 ? scheduleEntries : undefined,
       }
       const { link: newLink } = await useAPI<{ link: Link }>(
         props.isEdit ? '/api/link/edit' : '/api/link/create',

@@ -254,6 +254,11 @@
       "og_image": "Image",
       "geo_routing": "Geo Redirect",
       "add_geo_route": "Add Geo Redirect",
+      "schedule": "Scheduled Destinations",
+      "schedule_description": "Send visitors to a different URL until a given time. After the last entry passes, the link's main URL is used.",
+      "schedule_until": "Until",
+      "schedule_url": "Destination URL",
+      "add_schedule_entry": "Add Scheduled Destination",
       "country_code": "Country Code (e.g. US)",
       "select_country": "Select country",
       "search_country": "Search country...",
@@ -324,7 +329,8 @@
     "reset_confirm_desc": "This will reset the hit count and self-destruct timer, allowing the link to be viewed again.",
     "reset_success": "Link reset successfully",
     "reset_failed": "Failed to reset link",
-    "notifications_on": "Notifications on"
+    "notifications_on": "Notifications on",
+    "scheduled_destinations": "Scheduled destinations"
   },
   "check": {
     "title": "Link Check",

@@ -55,7 +55,8 @@
     "analysis": "Análise",
     "realtime": "Tempo Real",
     "check": "Check",
-    "migrate": "Importar/Exportar"
+    "migrate": "Importar/Exportar",
+    "batches": "Lotes"
   },
   "sidebar": {
     "subtitle": "Encurtador de links",
@@ -445,5 +446,34 @@
         "parse_error": "Falha ao analisar o arquivo"
       }
     }
+  },
+  "batches": {
+    "title": "Lotes de códigos",
+    "create": "Criar lote",
+    "name": "Nome",
+    "name_placeholder": "Ingressos, vouchers de bebida…",
+    "mode": "Modo",
+    "mode_redirect": "Voucher (redireciona, expira no primeiro escaneio)",
+    "mode_checkin": "Ingresso (página de check-in com botão de confirmação)",
+    "mode_redirect_short": "Voucher",
+    "mode_checkin_short": "Ingresso",
+    "destination": "URL de destino",
+    "destination_placeholder": "https://example.com (opcional para ingressos)",
+    "count": "Quantidade de códigos (1-100)",
+    "create_success": "Lote criado",
+    "create_failed": "Falha ao criar lote",
+    "claimed": "usados",
+    "empty": "Nenhum lote ainda. Crie um para gerar códigos de uso único.",
+    "delete": "Excluir lote",
+    "delete_confirm_title": "Excluir este lote?",
+    "delete_confirm_desc": "Todos os códigos deste lote serão excluídos e deixarão de funcionar. Isso não pode ser desfeito.",
+    "delete_success": "Lote excluído",
+    "print_sheet": "Folha para impressão",
+    "download_zip": "Baixar ZIP",
+    "status_valid": "Não usado",
+    "status_claimed": "Usado",
+    "status_missing": "Ausente",
+    "back": "Voltar aos lotes",
+    "load_failed": "Falha ao carregar"
   }
 }

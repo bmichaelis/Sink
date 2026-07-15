@@ -55,7 +55,8 @@
     "analysis": "Statistiques",
     "realtime": "Realtime",
     "check": "Check",
-    "migrate": "Import/Export"
+    "migrate": "Import/Export",
+    "batches": "Lots"
   },
   "sidebar": {
     "subtitle": "Raccourcisseur de liens",
@@ -445,5 +446,34 @@
         "parse_error": "Échec de l'analyse du fichier"
       }
     }
+  },
+  "batches": {
+    "title": "Lots de codes",
+    "create": "Créer un lot",
+    "name": "Nom",
+    "name_placeholder": "Billets d'événement, bons de boisson…",
+    "mode": "Mode",
+    "mode_redirect": "Bon (redirection, brûlé au premier scan)",
+    "mode_checkin": "Billet (page d'enregistrement avec bouton de confirmation)",
+    "mode_redirect_short": "Bon",
+    "mode_checkin_short": "Billet",
+    "destination": "URL de destination",
+    "destination_placeholder": "https://example.com (facultatif pour les billets)",
+    "count": "Nombre de codes (1-100)",
+    "create_success": "Lot créé",
+    "create_failed": "Échec de la création du lot",
+    "claimed": "utilisés",
+    "empty": "Aucun lot. Créez-en un pour générer des codes à usage unique.",
+    "delete": "Supprimer le lot",
+    "delete_confirm_title": "Supprimer ce lot ?",
+    "delete_confirm_desc": "Tous les codes de ce lot seront supprimés et cesseront de fonctionner. Cette action est irréversible.",
+    "delete_success": "Lot supprimé",
+    "print_sheet": "Feuille à imprimer",
+    "download_zip": "Télécharger le ZIP",
+    "status_valid": "Non utilisé",
+    "status_claimed": "Utilisé",
+    "status_missing": "Manquant",
+    "back": "Retour aux lots",
+    "load_failed": "Échec du chargement"
   }
 }

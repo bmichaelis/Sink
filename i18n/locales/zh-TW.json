@@ -55,7 +55,8 @@
     "analysis": "分析",
     "realtime": "即時",
     "check": "檢查",
-    "migrate": "匯入/匯出"
+    "migrate": "匯入/匯出",
+    "batches": "批量碼"
   },
   "sidebar": {
     "subtitle": "縮網址服務",
@@ -445,5 +446,34 @@
         "parse_error": "檔案解析失敗"
       }
     }
+  },
+  "batches": {
+    "title": "批量碼",
+    "create": "建立批量",
+    "name": "名稱",
+    "name_placeholder": "活動門票、飲品券……",
+    "mode": "模式",
+    "mode_redirect": "優惠券（跳轉，首次掃碼後失效）",
+    "mode_checkin": "門票（簽到頁面 + 確認按鈕）",
+    "mode_redirect_short": "優惠券",
+    "mode_checkin_short": "門票",
+    "destination": "目標 URL",
+    "destination_placeholder": "https://example.com（門票可留空）",
+    "count": "碼數量（1-100）",
+    "create_success": "批量已建立",
+    "create_failed": "批量建立失敗",
+    "claimed": "已使用",
+    "empty": "還沒有批量。建立一個以產生一次性碼。",
+    "delete": "刪除批量",
+    "delete_confirm_title": "確定刪除此批量？",
+    "delete_confirm_desc": "此批量中的所有碼將被刪除並失效。此操作無法復原。",
+    "delete_success": "批量已刪除",
+    "print_sheet": "列印頁",
+    "download_zip": "下載 ZIP",
+    "status_valid": "未使用",
+    "status_claimed": "已使用",
+    "status_missing": "缺失",
+    "back": "返回批量列表",
+    "load_failed": "載入失敗"
   }
 }

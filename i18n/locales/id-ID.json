@@ -55,7 +55,8 @@
     "analysis": "Analisis",
     "realtime": "Real-time",
     "check": "Check",
-    "migrate": "Impor/Ekspor"
+    "migrate": "Impor/Ekspor",
+    "batches": "Batch"
   },
   "sidebar": {
     "subtitle": "Pemendek Tautan",
@@ -445,5 +446,34 @@
         "parse_error": "Gagal mengurai file"
       }
     }
+  },
+  "batches": {
+    "title": "Batch kode",
+    "create": "Buat batch",
+    "name": "Nama",
+    "name_placeholder": "Tiket acara, voucher minuman…",
+    "mode": "Mode",
+    "mode_redirect": "Voucher (pengalihan, hangus saat pemindaian pertama)",
+    "mode_checkin": "Tiket (halaman check-in dengan tombol konfirmasi)",
+    "mode_redirect_short": "Voucher",
+    "mode_checkin_short": "Tiket",
+    "destination": "URL tujuan",
+    "destination_placeholder": "https://example.com (opsional untuk tiket)",
+    "count": "Jumlah kode (1-100)",
+    "create_success": "Batch dibuat",
+    "create_failed": "Gagal membuat batch",
+    "claimed": "diklaim",
+    "empty": "Belum ada batch. Buat satu untuk menghasilkan kode sekali pakai.",
+    "delete": "Hapus batch",
+    "delete_confirm_title": "Hapus batch ini?",
+    "delete_confirm_desc": "Semua kode dalam batch ini akan dihapus dan berhenti berfungsi. Tindakan ini tidak dapat dibatalkan.",
+    "delete_success": "Batch dihapus",
+    "print_sheet": "Lembar cetak",
+    "download_zip": "Unduh ZIP",
+    "status_valid": "Belum diklaim",
+    "status_claimed": "Diklaim",
+    "status_missing": "Hilang",
+    "back": "Kembali ke batch",
+    "load_failed": "Gagal memuat"
   }
 }

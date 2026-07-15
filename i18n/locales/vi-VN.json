@@ -55,7 +55,8 @@
     "analysis": "Phân tích",
     "realtime": "Thời gian thực",
     "check": "Check",
-    "migrate": "Nhập/Xuất"
+    "migrate": "Nhập/Xuất",
+    "batches": "Lô mã"
   },
   "sidebar": {
     "subtitle": "Rút gọn liên kết",
@@ -445,5 +446,34 @@
         "parse_error": "Không thể phân tích tệp"
       }
     }
+  },
+  "batches": {
+    "title": "Lô mã",
+    "create": "Tạo lô",
+    "name": "Tên",
+    "name_placeholder": "Vé sự kiện, phiếu đồ uống…",
+    "mode": "Chế độ",
+    "mode_redirect": "Phiếu (chuyển hướng, hết hạn sau lần quét đầu)",
+    "mode_checkin": "Vé (trang check-in với nút xác nhận)",
+    "mode_redirect_short": "Phiếu",
+    "mode_checkin_short": "Vé",
+    "destination": "URL đích",
+    "destination_placeholder": "https://example.com (tùy chọn cho vé)",
+    "count": "Số lượng mã (1-100)",
+    "create_success": "Đã tạo lô",
+    "create_failed": "Tạo lô thất bại",
+    "claimed": "đã dùng",
+    "empty": "Chưa có lô nào. Tạo một lô để sinh mã dùng một lần.",
+    "delete": "Xóa lô",
+    "delete_confirm_title": "Xóa lô này?",
+    "delete_confirm_desc": "Tất cả mã trong lô sẽ bị xóa và ngừng hoạt động. Không thể hoàn tác.",
+    "delete_success": "Đã xóa lô",
+    "print_sheet": "In trang mã",
+    "download_zip": "Tải ZIP",
+    "status_valid": "Chưa dùng",
+    "status_claimed": "Đã dùng",
+    "status_missing": "Thiếu",
+    "back": "Về danh sách lô",
+    "load_failed": "Tải thất bại"
   }
 }

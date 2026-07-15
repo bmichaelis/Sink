@@ -55,7 +55,8 @@
     "analysis": "Analysis",
     "realtime": "Realtime",
     "check": "Check",
-    "migrate": "Import/Export"
+    "migrate": "Import/Export",
+    "batches": "Batches"
   },
   "sidebar": {
     "subtitle": "Link Shortener",
@@ -445,5 +446,34 @@
         "parse_error": "Failed to parse file"
       }
     }
+  },
+  "batches": {
+    "title": "Code Batches",
+    "create": "Create Batch",
+    "name": "Name",
+    "name_placeholder": "Event tickets, drink vouchers…",
+    "mode": "Mode",
+    "mode_redirect": "Voucher (redirect, burns on first scan)",
+    "mode_checkin": "Ticket (check-in page with confirm button)",
+    "mode_redirect_short": "Voucher",
+    "mode_checkin_short": "Ticket",
+    "destination": "Destination URL",
+    "destination_placeholder": "https://example.com (optional for tickets)",
+    "count": "Number of codes (1-100)",
+    "create_success": "Batch created",
+    "create_failed": "Failed to create batch",
+    "claimed": "claimed",
+    "empty": "No batches yet. Create one to generate single-use codes.",
+    "delete": "Delete batch",
+    "delete_confirm_title": "Delete this batch?",
+    "delete_confirm_desc": "All codes in this batch will be deleted and stop working. This cannot be undone.",
+    "delete_success": "Batch deleted",
+    "print_sheet": "Print sheet",
+    "download_zip": "Download ZIP",
+    "status_valid": "Unclaimed",
+    "status_claimed": "Claimed",
+    "status_missing": "Missing",
+    "back": "Back to batches",
+    "load_failed": "Failed to load"
   }
 }

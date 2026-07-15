@@ -55,7 +55,8 @@
     "analysis": "Analisi",
     "realtime": "In Tempo Reale",
     "check": "Check",
-    "migrate": "Importa/Esporta"
+    "migrate": "Importa/Esporta",
+    "batches": "Lotti"
   },
   "sidebar": {
     "subtitle": "Accorcia i tuoi Link",
@@ -445,5 +446,34 @@
         "parse_error": "Analisi del file fallita"
       }
     }
+  },
+  "batches": {
+    "title": "Lotti di codici",
+    "create": "Crea lotto",
+    "name": "Nome",
+    "name_placeholder": "Biglietti evento, buoni bevande…",
+    "mode": "Modalità",
+    "mode_redirect": "Buono (reindirizza, si esaurisce alla prima scansione)",
+    "mode_checkin": "Biglietto (pagina check-in con pulsante di conferma)",
+    "mode_redirect_short": "Buono",
+    "mode_checkin_short": "Biglietto",
+    "destination": "URL di destinazione",
+    "destination_placeholder": "https://example.com (facoltativo per i biglietti)",
+    "count": "Numero di codici (1-100)",
+    "create_success": "Lotto creato",
+    "create_failed": "Creazione del lotto non riuscita",
+    "claimed": "riscattati",
+    "empty": "Nessun lotto. Creane uno per generare codici monouso.",
+    "delete": "Elimina lotto",
+    "delete_confirm_title": "Eliminare questo lotto?",
+    "delete_confirm_desc": "Tutti i codici di questo lotto verranno eliminati e smetteranno di funzionare. Operazione irreversibile.",
+    "delete_success": "Lotto eliminato",
+    "print_sheet": "Foglio di stampa",
+    "download_zip": "Scarica ZIP",
+    "status_valid": "Non riscattato",
+    "status_claimed": "Riscattato",
+    "status_missing": "Mancante",
+    "back": "Torna ai lotti",
+    "load_failed": "Caricamento non riuscito"
   }
 }

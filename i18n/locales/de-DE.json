@@ -55,7 +55,8 @@
     "analysis": "Analyse",
     "realtime": "Echtzeit",
     "check": "Check",
-    "migrate": "Import/Export"
+    "migrate": "Import/Export",
+    "batches": "Stapel"
   },
   "sidebar": {
     "subtitle": "Link-Verkürzer",
@@ -445,5 +446,34 @@
         "parse_error": "Datei konnte nicht analysiert werden"
       }
     }
+  },
+  "batches": {
+    "title": "Code-Stapel",
+    "create": "Stapel erstellen",
+    "name": "Name",
+    "name_placeholder": "Event-Tickets, Getränkegutscheine…",
+    "mode": "Modus",
+    "mode_redirect": "Gutschein (Weiterleitung, verfällt beim ersten Scan)",
+    "mode_checkin": "Ticket (Check-in-Seite mit Bestätigungsknopf)",
+    "mode_redirect_short": "Gutschein",
+    "mode_checkin_short": "Ticket",
+    "destination": "Ziel-URL",
+    "destination_placeholder": "https://example.com (optional für Tickets)",
+    "count": "Anzahl der Codes (1-100)",
+    "create_success": "Stapel erstellt",
+    "create_failed": "Stapel konnte nicht erstellt werden",
+    "claimed": "eingelöst",
+    "empty": "Noch keine Stapel. Erstelle einen, um Einmal-Codes zu generieren.",
+    "delete": "Stapel löschen",
+    "delete_confirm_title": "Diesen Stapel löschen?",
+    "delete_confirm_desc": "Alle Codes dieses Stapels werden gelöscht und funktionieren nicht mehr. Dies kann nicht rückgängig gemacht werden.",
+    "delete_success": "Stapel gelöscht",
+    "print_sheet": "Druckbogen",
+    "download_zip": "ZIP herunterladen",
+    "status_valid": "Offen",
+    "status_claimed": "Eingelöst",
+    "status_missing": "Fehlt",
+    "back": "Zurück zu den Stapeln",
+    "load_failed": "Laden fehlgeschlagen"
   }
 }

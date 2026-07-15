@@ -148,6 +148,72 @@ function renderTextPage(link: Link): string {
 </html>`
 }
 
+type CheckinState = 'valid' | 'used' | 'claimed-now'
+
+function renderCheckinPage(link: Link, batchName: string, state: CheckinState): string {
+  const seq = link.batchSeq ?? 0
+  const title = escapeHtml(batchName || 'Ticket')
+  const usedTime = link.claimedAt
+    ? new Date(link.claimedAt * 1000).toISOString().replace('T', ' ').slice(0, 16)
+    : ''
+
+  let statusHtml = ''
+  if (state === 'valid') {
+    statusHtml = `
+    <div class="mark ok">✓</div>
+    <h1>VALID</h1>
+    <p class="meta">${title} · Ticket #${seq}</p>
+    <form method="POST">
+      <input type="hidden" name="checkin" value="true">
+      <button type="submit">Check in</button>
+    </form>`
+  }
+  else if (state === 'claimed-now') {
+    statusHtml = `
+    <div class="mark ok">✓</div>
+    <h1>Checked in</h1>
+    <p class="meta">${title} · Ticket #${seq}</p>`
+  }
+  else {
+    statusHtml = `
+    <div class="mark bad">✕</div>
+    <h1>ALREADY USED</h1>
+    <p class="meta">${title} · Ticket #${seq}${usedTime ? ` · ${usedTime} UTC` : ''}</p>`
+  }
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title} · Ticket #${seq}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: #fafafa; color: #1a1a1a;
+    }
+    @media (prefers-color-scheme: dark) { body { background: #1a1a1a; color: #e5e5e5; } }
+    .card { text-align: center; padding: 2rem; }
+    .mark { font-size: 4rem; line-height: 1; margin-bottom: 0.5rem; }
+    .ok { color: #16a34a; }
+    .bad { color: #dc2626; }
+    h1 { font-size: 2em; margin-bottom: 0.25em; }
+    .meta { color: #6b7280; margin-bottom: 1.5rem; }
+    button {
+      font-size: 1.25rem; font-weight: 600; padding: 0.9rem 3rem; border: none;
+      border-radius: 0.75rem; background: #16a34a; color: white; cursor: pointer;
+    }
+    button:active { background: #15803d; }
+  </style>
+</head>
+<body>
+  <div class="card">${statusHtml}</div>
+</body>
+</html>`
+}
+
 function isTextLink(link: Link): boolean {
   return link.type === 'text' || (!!link.content && !link.url)
 }
@@ -264,6 +330,34 @@ export default eventHandler(async (event) => {
         if (link.viewExpireSeconds)
           await writePromise
         link = updatedLink
+      }
+
+      // Check-in batch codes: GET renders a read-only status page; the
+      // confirm-button POST (checkin=true) claims with an awaited write.
+      if (link.batchMode === 'checkin') {
+        event.context.link = link
+        try {
+          await useAccessLog(event)
+        }
+        catch (error) {
+          console.error('Failed write access log:', error)
+        }
+
+        const batch = link.batchId ? await getBatch(event, link.batchId) : null
+        const batchName = batch?.name ?? ''
+
+        if (event.method === 'POST') {
+          const body = await readBody(event).catch(() => null)
+          if (body?.checkin === 'true') {
+            if (link.claimedAt)
+              return sendNoStoreHtml(renderCheckinPage(link, batchName, 'used'))
+            const claimedLink: Link = { ...link, claimedAt: now }
+            await putLink(event, claimedLink)
+            return sendNoStoreHtml(renderCheckinPage(claimedLink, batchName, 'claimed-now'))
+          }
+        }
+
+        return sendNoStoreHtml(renderCheckinPage(link, batchName, link.claimedAt ? 'used' : 'valid'))
       }
 
       // Text links render their content instead of redirecting.

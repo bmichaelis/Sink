@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { BatchCodeStatus, BatchRecord } from '#shared/schemas/batch'
-import { ArrowLeft, Copy, Eraser, RotateCcw } from 'lucide-vue-next'
+import { ArrowLeft, Copy, Download, Eraser, Printer, RotateCcw } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 
 const props = defineProps<{
@@ -70,6 +70,35 @@ async function deleteBatch() {
     toast.error(t('batches.load_failed'))
   }
 }
+
+const zipping = ref(false)
+const { qrPngBlob } = useBatchQr()
+
+async function downloadZip() {
+  if (!batch.value || zipping.value)
+    return
+  zipping.value = true
+  try {
+    const { downloadZip: makeZip } = await import('client-zip')
+    const files = await Promise.all(codes.value.filter(c => !c.missing).map(async code => ({
+      name: `${String(code.seq).padStart(3, '0')}-${code.slug}.png`,
+      input: await qrPngBlob(shortLink(code.slug)),
+    })))
+    const blob = await makeZip(files).blob()
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = `${batch.value.name.replace(/[^\w-]+/g, '-')}-codes.zip`
+    a.click()
+    URL.revokeObjectURL(a.href)
+  }
+  catch (e) {
+    console.error(e)
+    toast.error(t('batches.load_failed'))
+  }
+  finally {
+    zipping.value = false
+  }
+}
 </script>
 
 <template>
@@ -105,7 +134,14 @@ async function deleteBatch() {
         </Badge>
         <span class="text-sm text-muted-foreground">{{ shortDate(batch.createdAt, locale) }}</span>
         <div class="ml-auto flex items-center gap-2">
-          <!-- batch-actions -->
+          <NuxtLink :to="{ path: '/dashboard/batches/print', query: { id: batchId } }" target="_blank">
+            <Button variant="outline" size="sm">
+              <Printer class="mr-1 h-4 w-4" aria-hidden="true" /> {{ $t('batches.print_sheet') }}
+            </Button>
+          </NuxtLink>
+          <Button variant="outline" size="sm" :disabled="zipping" @click="downloadZip">
+            <Download class="mr-1 h-4 w-4" aria-hidden="true" /> {{ $t('batches.download_zip') }}
+          </Button>
           <AlertDialog>
             <AlertDialogTrigger as-child>
               <Button variant="destructive" size="sm">

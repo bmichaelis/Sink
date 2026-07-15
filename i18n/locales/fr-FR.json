@@ -254,6 +254,11 @@
       "og_image": "Image",
       "geo_routing": "Redirection géographique",
       "add_geo_route": "Ajouter une redirection géographique",
+      "schedule": "Destinations planifiées",
+      "schedule_description": "Envoyer les visiteurs vers une autre URL jusqu'à une heure donnée. Après la dernière entrée, l'URL principale du lien est utilisée.",
+      "schedule_until": "Jusqu'à",
+      "schedule_url": "URL de destination",
+      "add_schedule_entry": "Ajouter une destination planifiée",
       "country_code": "Code pays (par ex. FR)",
       "select_country": "Sélectionner un pays",
       "search_country": "Rechercher un pays...",
@@ -324,7 +329,8 @@
     "reset_confirm_desc": "Cela réinitialisera le compteur de visites et la minuterie d'autodestruction, permettant de consulter à nouveau le lien.",
     "reset_success": "Lien réinitialisé avec succès",
     "reset_failed": "Échec de la réinitialisation du lien",
-    "notifications_on": "Notifications activées"
+    "notifications_on": "Notifications activées",
+    "scheduled_destinations": "Destinations planifiées"
   },
   "check": {
     "title": "Link Check",

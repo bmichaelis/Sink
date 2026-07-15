@@ -254,6 +254,11 @@
       "og_image": "Hình ảnh",
       "geo_routing": "Chuyển hướng theo địa lý",
       "add_geo_route": "Thêm chuyển hướng địa lý",
+      "schedule": "Đích đến theo lịch",
+      "schedule_description": "Đưa khách truy cập đến một URL khác cho đến thời điểm đã định. Sau mục cuối cùng, URL chính của liên kết sẽ được dùng.",
+      "schedule_until": "Cho đến",
+      "schedule_url": "URL đích",
+      "add_schedule_entry": "Thêm đích đến theo lịch",
       "country_code": "Mã quốc gia (ví dụ: VN)",
       "select_country": "Chọn quốc gia",
       "search_country": "Tìm quốc gia...",
@@ -324,7 +329,8 @@
     "reset_confirm_desc": "Điều này sẽ đặt lại số lượt truy cập và bộ hẹn giờ tự hủy, cho phép xem lại liên kết.",
     "reset_success": "Đặt lại liên kết thành công",
     "reset_failed": "Đặt lại liên kết thất bại",
-    "notifications_on": "Đã bật thông báo"
+    "notifications_on": "Đã bật thông báo",
+    "scheduled_destinations": "Đích đến theo lịch"
   },
   "check": {
     "title": "Link Check",

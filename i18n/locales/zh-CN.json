@@ -254,6 +254,11 @@
       "og_image": "图片",
       "geo_routing": "地理跳转",
       "add_geo_route": "添加地理跳转",
+      "schedule": "定时目标地址",
+      "schedule_description": "在指定时间之前将访问者引导至其他网址。最后一条记录过期后，将使用链接的主网址。",
+      "schedule_until": "截止时间",
+      "schedule_url": "目标网址",
+      "add_schedule_entry": "添加定时目标",
       "country_code": "国家/地区代码 (例如 CN)",
       "select_country": "选择国家/地区",
       "search_country": "搜索国家/地区...",
@@ -324,7 +329,8 @@
     "reset_confirm_desc": "这将重置访问次数和自毁计时器，允许链接再次被查看。",
     "reset_success": "链接重置成功",
     "reset_failed": "链接重置失败",
-    "notifications_on": "通知已开启"
+    "notifications_on": "通知已开启",
+    "scheduled_destinations": "定时目标已设置"
   },
   "check": {
     "title": "链接检测",

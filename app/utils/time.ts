@@ -72,3 +72,21 @@ export function computeDateRange(name: string, locale?: string): [number, number
   const getRange = presets[name]
   return getRange ? getRange() : presets['last-7d']!()
 }
+
+// `<input type="datetime-local">` speaks 'YYYY-MM-DDTHH:mm' in the viewer's own
+// wall-clock time, while a schedule entry stores an absolute instant. These two
+// convert between them, so a schedule always renders in the reader's timezone
+// and needs no timezone field of its own.
+export function unix2datetimeLocal(unix: number): string {
+  const d = new Date(unix * 1000)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+export function datetimeLocal2unix(value: string): number | undefined {
+  if (!value)
+    return undefined
+  // `new Date('2026-07-18T18:00')` (no zone suffix) parses as local time.
+  const ms = new Date(value).getTime()
+  return Number.isNaN(ms) ? undefined : Math.floor(ms / 1000)
+}

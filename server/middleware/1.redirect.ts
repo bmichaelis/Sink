@@ -218,30 +218,7 @@ function isTextLink(link: Link): boolean {
   return link.type === 'text' || (!!link.content && !link.url)
 }
 
-const SOCIAL_BOTS = [
-  'applebot',
-  'discordbot',
-  'facebot',
-  'facebookexternalhit',
-  'linkedinbot',
-  'linkexpanding',
-  'mastodon',
-  'skypeuripreview',
-  'slackbot',
-  'slackbot-linkexpanding',
-  'snapchat',
-  'telegrambot',
-  'tiktok',
-  'twitterbot',
-  'whatsapp',
-]
-
 const APPLE_DEVICE_UA_MARKERS = ['iphone', 'ipad', 'ipod', 'crios']
-
-function isSocialBot(userAgent: string): boolean {
-  const ua = userAgent.toLowerCase()
-  return SOCIAL_BOTS.some(bot => ua.includes(bot))
-}
 
 function getDeviceRedirectUrl(userAgent: string, link: Link): string | null {
   if (!link.apple && !link.google)

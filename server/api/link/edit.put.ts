@@ -64,6 +64,18 @@ export default eventHandler(async (event) => {
   await applyEditableLinkPassword(newLink, link.password)
 
   await putLink(event, newLink)
+
+  // Removing a notify URL clears its accumulated state so re-enabling starts
+  // fresh. Best-effort: a KV hiccup here must not fail the already-persisted edit.
+  if (existingLink.notifyUrl && !newLink.notifyUrl) {
+    try {
+      await deleteNotifyState(event, newLink.slug)
+    }
+    catch (error) {
+      console.error('[scan-notify] Failed to clear notify state on edit:', error)
+    }
+  }
+
   setResponseStatus(event, 201)
   return buildLinkResponse(event, newLink)
 })

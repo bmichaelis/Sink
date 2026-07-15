@@ -63,6 +63,11 @@ export default eventHandler(async (event) => {
   const newLink = mergeEditableLink(existingLink, link)
   await applyEditableLinkPassword(newLink, link.password)
 
+  // Removing a notify URL should clear its accumulated notification state,
+  // so re-enabling later starts fresh instead of resurrecting an old total.
+  if (existingLink.notifyUrl && !newLink.notifyUrl)
+    await deleteNotifyState(event, newLink.slug)
+
   await putLink(event, newLink)
   setResponseStatus(event, 201)
   return buildLinkResponse(event, newLink)

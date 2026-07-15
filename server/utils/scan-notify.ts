@@ -15,6 +15,11 @@ export function notifyStateKey(slug: string): string {
   return `notify:${slug}`
 }
 
+export async function deleteNotifyState(event: H3Event, slug: string): Promise<void> {
+  const { KV } = event.context.cloudflare.env
+  await KV.delete(notifyStateKey(slug))
+}
+
 function isBotScan(event: H3Event): boolean {
   const cf = event.context.cloudflare?.request?.cf
   if (cf?.botManagement?.verifiedBot)
@@ -154,7 +159,19 @@ async function sendScanNotification(event: H3Event, link: Link): Promise<void> {
     const { cloudflare } = event.context
     const { KV } = cloudflare.env
     const key = notifyStateKey(link.slug)
-    const raw = await KV.get(key, { type: 'json' }).catch(() => null) as Partial<NotifyState> | null
+    // Read as text and parse explicitly: a transient KV read error throws and
+    // is caught by the outer try/catch (skipping this notification without
+    // mutating state), while only genuinely corrupt JSON self-heals to zeros.
+    const rawText = await KV.get(key, { type: 'text' })
+    let raw: Partial<NotifyState> | null = null
+    if (rawText) {
+      try {
+        raw = JSON.parse(rawText) as Partial<NotifyState>
+      }
+      catch {
+        raw = null
+      }
+    }
     const lastNotifiedAt = Number(raw?.lastNotifiedAt) || 0
     const pending = Number(raw?.pending) || 0
     const total = (Number(raw?.total) || 0) + 1

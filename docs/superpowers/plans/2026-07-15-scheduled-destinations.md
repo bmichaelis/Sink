@@ -12,6 +12,10 @@
 
 ## Global Constraints
 
+- **Running the dev server in this environment requires two workarounds** (discovered during Task 1; neither is a code problem):
+  1. **Temporarily remove the `ai` binding from `wrangler.jsonc`.** Workers AI has no local emulation, so wrangler always opens a *remote* proxy session for it, which calls the Cloudflare `/memberships` API. Our scoped deploy token cannot, so **every binding — including KV — comes back `undefined` and all API routes return 500**. Deleting the `"ai": { ... },` block makes the proxy initialize locally ("Using cloudflare-dev emulation in development mode"). **This edit is verification-only and must NEVER be committed** — restore with `git checkout wrangler.jsonc` before any commit.
+  2. **Check which port it actually bound.** If 7465 is held by a zombie from an earlier run, nuxt silently falls back to **port 3000** and prints `Unable to find an available port`. Curling the wrong port hits the dead server and produces misleading 500s. Kill stragglers with `pkill -f '[n]uxt dev'` — note the `[n]` bracket, since a plain `pkill -f 'nuxt dev'` matches the shell running it and kills itself. Read the actual URL from the startup banner before curling.
+- **`/api/link/query` returns the link object unwrapped** (no `{ link: ... }` envelope), while `/api/link/create` and `/api/link/edit` return `{ link, shortLink }`. Extract accordingly — a wrong path yields a silent `None` that looks like a missing field.
 - **Never build or run dev with `CI=true`.** `nuxt.config.ts` sets `preset: !import.meta.env.CI ? 'cloudflare-module' : undefined` — `CI=true` silently produces a non-Worker node-server bundle. (`CI=true` IS fine for `pnpm install` and `pnpm types:check`.)
 - Work only in the worktree `/home/ubuntu/repos/Sink/.claude/worktrees/10-scheduled-destinations` on branch `worktree-10-scheduled-destinations`. **Never commit to `master`** and never `cd` to `/home/ubuntu/repos/Sink`.
 - Code style: 2-space indent, single quotes, **no semicolons**, trailing commas. Run `pnpm lint:fix` before every commit.
@@ -432,30 +436,33 @@ Replace it with:
 
 - [ ] **Step 6: Prove the redirect honors the schedule**
 
-Make sure the dev server from Task 1 Step 7 is running (`curl -s -o /dev/null -w '%{http_code}' http://localhost:7465/dashboard` → `200`); if not, restart it per those instructions.
+The dev server should already be running on **port 3000** (see Global Constraints for why it is 3000 and not 7465, and for the `wrangler.jsonc` AI-binding workaround it needs). Confirm with `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/dashboard` → `307`. If it is not running, follow the Global Constraints workarounds, then `pnpm dev` and read the port off the banner.
+
+`PORT` below is set to 3000 to match. **Do not commit `wrangler.jsonc`** — Step 7 adds only the two source files by name.
 
 ```bash
 cd /home/ubuntu/repos/Sink/.claude/worktrees/10-scheduled-destinations
+PORT=3000
 FUTURE=$(( $(date +%s) + 86400 ))
 PAST=$(( $(date +%s) - 86400 ))
 
 # A: cutoff in the future -> should serve the scheduled URL
-curl -s -o /dev/null -X POST http://localhost:7465/api/link/create \
+curl -s -o /dev/null -X POST "http://localhost:$PORT/api/link/create" \
   -H 'Authorization: Bearer SinkCool' -H 'Content-Type: application/json' \
   -d "{\"url\":\"https://example.com/photos\",\"slug\":\"sched-future\",\"schedule\":[{\"until\":$FUTURE,\"url\":\"https://example.com/rsvp\"}]}"
 
 # B: only cutoff already passed -> should serve the base URL
-curl -s -o /dev/null -X POST http://localhost:7465/api/link/create \
+curl -s -o /dev/null -X POST "http://localhost:$PORT/api/link/create" \
   -H 'Authorization: Bearer SinkCool' -H 'Content-Type: application/json' \
   -d "{\"url\":\"https://example.com/photos\",\"slug\":\"sched-past\",\"schedule\":[{\"until\":$PAST,\"url\":\"https://example.com/rsvp\"}]}"
 
 # C: no schedule at all -> regression, must still serve the base URL
-curl -s -o /dev/null -X POST http://localhost:7465/api/link/create \
+curl -s -o /dev/null -X POST "http://localhost:$PORT/api/link/create" \
   -H 'Authorization: Bearer SinkCool' -H 'Content-Type: application/json' \
   -d '{"url":"https://example.com/photos","slug":"sched-none"}'
 
 for s in sched-future sched-past sched-none; do
-  printf '%-14s %s\n' "$s" "$(curl -s -o /dev/null -D - "http://localhost:7465/$s" | grep -i '^location:')"
+  printf '%-14s %s\n' "$s" "$(curl -s -o /dev/null -D - "http://localhost:$PORT/$s" | grep -i '^location:')"
 done
 ```
 

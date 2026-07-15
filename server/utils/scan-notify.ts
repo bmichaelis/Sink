@@ -21,7 +21,7 @@ function isBotScan(event: H3Event): boolean {
     return true
 
   const ua = (getHeader(event, 'user-agent') || '').toLowerCase()
-  return BOT_UA_MARKERS.some(marker => ua.includes(marker))
+  return BOT_UA_MARKERS.some(marker => ua.includes(marker)) || isSocialBot(ua)
 }
 
 function uaBrowser(ua: string): string {

@@ -2,6 +2,11 @@
 
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('cloudflare:scheduled', async (event) => {
+    // Skip only the weekly digest cron; anything else still backs up (fail-open,
+    // so an unexpected cron string can never silently disable backups).
+    if (cronFired(event, '0 14 * * 1', 14, 1))
+      return
+
     const config = useRuntimeConfig()
 
     if (config.disableAutoBackup) {

@@ -36,7 +36,7 @@ describe('/', () => {
       },
     })
 
-    expect(response.status).toBe(301)
+    expect(response.status).toBe(302)
     expect(response.headers.get('Location')).toBe(apple)
   })
 
@@ -55,7 +55,7 @@ describe('/', () => {
     const options: CfRequestInit = { redirect: 'manual', cf: { country: 'CN' } }
     const response = await fetch(`/${slug}`, options as RequestInit)
 
-    expect(response.status).toBe(301)
+    expect(response.status).toBe(302)
     expect(response.headers.get('Location')).toBe(cnUrl)
   })
 
@@ -74,7 +74,7 @@ describe('/', () => {
     const options: CfRequestInit = { redirect: 'manual', cf: { country: 'US' } }
     const response = await fetch(`/${slug}`, options as RequestInit)
 
-    expect(response.status).toBe(301)
+    expect(response.status).toBe(302)
     expect(response.headers.get('Location')).toBe(defaultUrl)
   })
 
@@ -144,7 +144,7 @@ describe('/', () => {
     }
     const response = await fetch(`/${slug}`, options as RequestInit)
 
-    expect(response.status).toBe(301)
+    expect(response.status).toBe(302)
     expect(response.headers.get('Location')).toBe(apple)
   })
 
@@ -162,7 +162,7 @@ describe('/', () => {
 
     const response = await fetch(`/${slug}`, { redirect: 'manual' })
 
-    expect(response.status).toBe(301)
+    expect(response.status).toBe(302)
     expect(response.headers.get('Location')).toBe('https://example.com/rsvp')
   })
 
@@ -180,7 +180,7 @@ describe('/', () => {
 
     const response = await fetch(`/${slug}`, { redirect: 'manual' })
 
-    expect(response.status).toBe(301)
+    expect(response.status).toBe(302)
     expect(response.headers.get('Location')).toBe('https://example.com/photos')
   })
 
@@ -196,7 +196,7 @@ describe('/', () => {
 
     const response = await fetch(`/${slug}`, { redirect: 'manual' })
 
-    expect(response.status).toBe(301)
+    expect(response.status).toBe(302)
     expect(response.headers.get('Location')).toBe('https://example.com/photos')
   })
 })

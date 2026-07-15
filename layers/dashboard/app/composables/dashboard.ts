@@ -1,6 +1,6 @@
 import type { Component } from 'vue'
 import { useRoute } from '#imports'
-import { Activity, ChartArea, FolderSync, Link, ScanSearch } from 'lucide-vue-next'
+import { Activity, ChartArea, FolderSync, Link, ScanSearch, Tickets } from 'lucide-vue-next'
 import { computed } from 'vue'
 
 export interface DashboardRouteConfig {
@@ -19,6 +19,11 @@ export const DASHBOARD_ROUTES = {
     paths: ['/dashboard/link'],
     titleKey: 'nav.links',
     icon: Link,
+  },
+  batches: {
+    paths: ['/dashboard/batches'],
+    titleKey: 'nav.batches',
+    icon: Tickets,
   },
   analysis: {
     paths: ['/dashboard/analysis'],

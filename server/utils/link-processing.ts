@@ -63,9 +63,13 @@ export function mergeEditableLink(existingLink: Link, link: Link): Link {
     id: existingLink.id,
     createdAt: existingLink.createdAt,
     updatedAt: Math.floor(Date.now() / 1000),
-    // Preserve server-managed hit counters (never edited from the form).
+    // Preserve server-managed hit counters and batch state (never edited from the form).
     hitCount: existingLink.hitCount ?? 0,
     firstHitAt: existingLink.firstHitAt,
+    batchId: existingLink.batchId,
+    batchSeq: existingLink.batchSeq,
+    batchMode: existingLink.batchMode,
+    claimedAt: existingLink.claimedAt,
   }
 
   cleanupOptionalLinkFields(newLink, link)

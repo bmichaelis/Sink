@@ -50,6 +50,7 @@ export default eventHandler(async (event) => {
     ...existingLink,
     hitCount: 0,
     firstHitAt: undefined,
+    claimedAt: undefined,
     updatedAt: Math.floor(Date.now() / 1000),
   }
 

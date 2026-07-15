@@ -55,7 +55,8 @@
     "analysis": "分析",
     "realtime": "实时",
     "check": "检测",
-    "migrate": "导入/导出"
+    "migrate": "导入/导出",
+    "batches": "批量码"
   },
   "sidebar": {
     "subtitle": "短链接服务",
@@ -445,5 +446,34 @@
         "parse_error": "文件解析失败"
       }
     }
+  },
+  "batches": {
+    "title": "批量码",
+    "create": "创建批量",
+    "name": "名称",
+    "name_placeholder": "活动门票、饮品券……",
+    "mode": "模式",
+    "mode_redirect": "优惠券（跳转，首次扫码后失效）",
+    "mode_checkin": "门票（签到页面 + 确认按钮）",
+    "mode_redirect_short": "优惠券",
+    "mode_checkin_short": "门票",
+    "destination": "目标 URL",
+    "destination_placeholder": "https://example.com（门票可留空）",
+    "count": "码数量（1-100）",
+    "create_success": "批量已创建",
+    "create_failed": "批量创建失败",
+    "claimed": "已使用",
+    "empty": "还没有批量。创建一个以生成一次性码。",
+    "delete": "删除批量",
+    "delete_confirm_title": "确定删除此批量？",
+    "delete_confirm_desc": "此批量中的所有码将被删除并失效。此操作无法撤销。",
+    "delete_success": "批量已删除",
+    "print_sheet": "打印页",
+    "download_zip": "下载 ZIP",
+    "status_valid": "未使用",
+    "status_claimed": "已使用",
+    "status_missing": "缺失",
+    "back": "返回批量列表",
+    "load_failed": "加载失败"
   }
 }

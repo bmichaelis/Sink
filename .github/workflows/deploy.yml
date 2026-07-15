@@ -1,0 +1,46 @@
+name: Deploy to Cloudflare Workers
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        # GitHub Actions sets CI=true, which nuxt.config uses to DISABLE the
+        # cloudflare-module preset (for typecheck-only CI runs). Force the
+        # preset explicitly so the build is a real Workers bundle.
+        env:
+          NITRO_PRESET: cloudflare-module
+        run: pnpm build
+
+      - name: Guard - verify Workers preset
+        run: |
+          PRESET=$(python3 -c "import json;print(json.load(open('.output/nitro.json')).get('preset'))")
+          echo "built preset: $PRESET"
+          test "$PRESET" = "cloudflare-module" || { echo "::error::Build produced '$PRESET', not cloudflare-module — refusing to deploy"; exit 1; }
+
+      - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 3fec0e6981622dd93b3889f06ed9532b
+        run: npx wrangler deploy

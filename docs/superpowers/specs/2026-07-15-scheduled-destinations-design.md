@@ -192,6 +192,17 @@ tooltip).
 5. **Static gates**: `types:check` (excl. known Search.vue errors), `lint`,
    `build`.
 
+## Deployment dependency
+
+Scheduled destinations require redirects to be non-permanent. A `301`/`308`
+gets cached indefinitely by the visitor's own browser, so a scan that happens
+before a cutoff keeps resolving to the old phase from that cache — the worker
+is never invoked again, and the phase change is silently never seen by that
+visitor. `wrangler.jsonc` pins `NUXT_REDIRECT_STATUS_CODE` to `302` for this
+reason (see the comment there), even though the repo's own default in
+`nuxt.config.ts` is `301`. Any future change to that setting must preserve a
+temporary status code, or scheduled destinations will break in production.
+
 ## Non-goals (YAGNI)
 
 - Recurring/repeating schedules (e.g. "every Friday").

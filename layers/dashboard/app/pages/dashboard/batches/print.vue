@@ -13,19 +13,26 @@ const batch = ref<BatchRecord | null>(null)
 const codes = ref<BatchCodeStatus[]>([])
 const qrUrls = ref<Record<string, string>>({})
 const ready = ref(false)
+const error = ref(false)
 
 onMounted(async () => {
-  const id = typeof route.query.id === 'string' ? route.query.id : ''
-  if (!id)
-    return
-  const data = await useAPI<{ batch: BatchRecord, codes: BatchCodeStatus[] }>('/api/batch/detail', { query: { id } })
-  batch.value = data.batch
-  codes.value = data.codes
-  for (const code of data.codes) {
-    const blob = await qrPngBlob(`${requestUrl.origin}/${code.slug}`, 256)
-    qrUrls.value[code.slug] = URL.createObjectURL(blob)
+  try {
+    const id = typeof route.query.id === 'string' ? route.query.id : ''
+    if (!id)
+      throw new Error('missing batch id')
+    const data = await useAPI<{ batch: BatchRecord, codes: BatchCodeStatus[] }>('/api/batch/detail', { query: { id } })
+    batch.value = data.batch
+    codes.value = data.codes
+    for (const code of data.codes) {
+      const blob = await qrPngBlob(`${requestUrl.origin}/${code.slug}`, 256)
+      qrUrls.value[code.slug] = URL.createObjectURL(blob)
+    }
+    ready.value = true
   }
-  ready.value = true
+  catch (e) {
+    console.error(e)
+    error.value = true
+  }
 })
 
 function printSheet() {
@@ -36,6 +43,9 @@ function printSheet() {
 
 <template>
   <div class="mx-auto max-w-5xl bg-white p-6 text-black">
+    <p v-if="error" class="py-12 text-center text-sm text-gray-500">
+      {{ $t('batches.load_failed') }}
+    </p>
     <div
       class="
         mb-4 flex items-center justify-between
@@ -54,7 +64,7 @@ function printSheet() {
       </button>
     </div>
 
-    <div class="grid grid-cols-3 gap-6">
+    <div v-if="!error" class="grid grid-cols-3 gap-6">
       <div
         v-for="code in codes"
         :key="code.slug"

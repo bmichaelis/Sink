@@ -11,6 +11,7 @@
     "dev": "nuxt dev --port 7465",
     "analyze": "nuxt analyze",
     "test": "vitest",
+    "test:ci": "vitest run --exclude '**/stats.spec.ts' --exclude '**/logs.spec.ts'",
     "build": "NODE_OPTIONS=--max-old-space-size=8192 nuxt build",
     "build:map": "node scripts/build-map.js",
     "build:sphere": "node scripts/build-sphere.js",

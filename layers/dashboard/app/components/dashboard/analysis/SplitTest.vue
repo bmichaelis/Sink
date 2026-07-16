@@ -31,7 +31,16 @@ async function getVariantStats() {
   }
 }
 
-watchThrottled([() => analysisStore.dateRange, () => analysisStore.filters], getVariantStats, {
+// Also refetch when the link itself changes: unlike other analytics dimensions,
+// variants are editable, and the owner may edit them while viewing this very
+// page (link.vue updates `link` in place on edit). Watching link.id + variants
+// keeps the per-variant URLs/weights/counts in step with the current config.
+watchThrottled([
+  () => analysisStore.dateRange,
+  () => analysisStore.filters,
+  () => props.link.id,
+  () => props.link.variants,
+], getVariantStats, {
   deep: true,
   throttle: 500,
   leading: true,

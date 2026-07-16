@@ -3,14 +3,11 @@ name: Deploy to Cloudflare Workers
 on:
   push:
     branches: [master]
+  pull_request:
   workflow_dispatch:
 
-concurrency:
-  group: deploy-production
-  cancel-in-progress: false
-
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,7 +25,51 @@ jobs:
       - name: Build
         # GitHub Actions sets CI=true, which nuxt.config uses to DISABLE the
         # cloudflare-module preset (for typecheck-only CI runs). Force the
-        # preset explicitly so the build is a real Workers bundle.
+        # preset explicitly so the build is a real Workers bundle — which is
+        # also the exact artifact the tests exercise via SELF.fetch.
+        env:
+          NITRO_PRESET: cloudflare-module
+        run: pnpm build
+
+      - name: Guard - verify Workers preset
+        run: |
+          PRESET=$(python3 -c "import json;print(json.load(open('.output/nitro.json')).get('preset'))")
+          echo "built preset: $PRESET"
+          test "$PRESET" = "cloudflare-module" || { echo "::error::Build produced '$PRESET', not cloudflare-module"; exit 1; }
+
+      - name: Run tests
+        # The vitest pool runs the built worker via SELF.fetch and reads
+        # NUXT_SITE_TOKEN for both the worker config and the auth header, so the
+        # value only needs to be self-consistent. vitest.config.ts strips the AI
+        # binding (no local emulation) into a generated test config. The
+        # stats/logs specs are excluded — they need live Analytics Engine
+        # credentials this gate deliberately doesn't require (#17).
+        run: |
+          echo "NUXT_SITE_TOKEN=ci-test-token" > .env
+          pnpm test:ci
+
+  deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    # Serialize production deploys only; PR/test runs are unrestricted.
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
         env:
           NITRO_PRESET: cloudflare-module
         run: pnpm build

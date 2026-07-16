@@ -9,6 +9,12 @@ import { loadEnv } from 'vite'
 // stays the single source of truth for every other binding.
 const testConfigPath = './.wrangler.test.jsonc'
 const wranglerConfig = readFileSync('./wrangler.jsonc', 'utf8').replace(/\n\s*"ai":\s*\{[^}]*\},/, '')
+// Fail loud if the strip silently no-ops (e.g. the `ai` block was reformatted or
+// moved to last position, losing its trailing comma). Otherwise the surviving
+// remote AI binding would make the pool hang on a credentials-less proxy — a
+// confusing failure. Turn that into a clear, actionable error instead.
+if (/"ai":/.test(wranglerConfig))
+  throw new Error('vitest.config: failed to strip the "ai" binding from wrangler.jsonc — the test pool needs it removed. Check the block\'s formatting against the regex above.')
 writeFileSync(testConfigPath, wranglerConfig)
 
 export default defineWorkersConfig(({ mode }) => ({

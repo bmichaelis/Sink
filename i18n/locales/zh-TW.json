@@ -259,6 +259,14 @@
       "schedule_until": "截止時間",
       "schedule_url": "目標網址",
       "add_schedule_entry": "新增定時目標",
+      "geo_restrictions": "地區限制",
+      "geo_restrictions_description": "僅這些國家/地區的訪客可以開啟連結。留空則不限制。",
+      "add_allowed_country": "新增國家/地區",
+      "active_hours": "活動時段",
+      "active_hours_description": "連結僅在該每日時段內有效。留空則一律有效。",
+      "active_hours_start": "開始",
+      "active_hours_end": "結束",
+      "active_hours_tz": "時區",
       "country_code": "國家/地區代碼 (例如 TW)",
       "select_country": "選擇國家/地區",
       "search_country": "搜尋國家/地區...",
@@ -330,7 +338,8 @@
     "reset_success": "連結重置成功",
     "reset_failed": "連結重置失敗",
     "notifications_on": "通知已開啟",
-    "scheduled_destinations": "定時目標已設定"
+    "scheduled_destinations": "定時目標已設定",
+    "access_restricted": "存取受限"
   },
   "check": {
     "title": "連結檢測",

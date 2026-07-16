@@ -50,3 +50,20 @@ export interface HeatmapDataPoint {
   visits: number
   visitors: number
 }
+
+export interface VariantStatRow {
+  variant: string
+  visits: number
+  visitors: number
+}
+
+export interface VariantStat {
+  index: number
+  // null when an AE row's index has no matching current variant (the variant
+  // list was shortened after that data was logged — see the reordering caveat).
+  url: string | null
+  weight: number | null
+  visits: number
+  visitors: number
+  percent: number
+}

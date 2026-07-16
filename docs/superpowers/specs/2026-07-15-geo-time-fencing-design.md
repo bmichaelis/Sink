@@ -87,9 +87,37 @@ and flagged for review:
 | **403** for both fences (not 410/503) | 410 means permanently gone, which is wrong; 503 + `Retry-After` is more correct for hours but QR scanners don't read it | Change `setResponseStatus` |
 | Blocked scans are **not** logged to analytics | Matches the existing hit-limit gate, which also returns before `useAccessLog`. Logging them means moving the access-log call, which touches unrelated code | Follow-up issue — see Non-goals |
 | Fencing does **not** apply to check-in codes | They return earlier, above even the hit-limit gate, deliberately ("so stray maxHits can never mutate a check-in code"). Fencing a ticket is a real use case but a different change | Follow-up issue |
-| Fencing **does** apply to social-bot OG previews | The bot branch is below the fence. A US-only link pasted in a foreign Slack shows no preview — honest, and simpler than a bot exemption | Add a bot check to the fence |
+| Fencing **does** apply to social-bot OG previews | The bot branch is below the fence, so previews are fenced too. **Correction (final review):** the original reasoning here — "a US-only link pasted in a foreign Slack shows no preview" — was wrong. Unfurl bots fetch from their own datacenters, so `cf.country` is the *bot's* infrastructure country, not the sharer's. The real behavior: a `DE`-only link previews **nowhere** (Slackbot fetches from the US), and an `activeHours` link unfurled at 3am gets no preview *and Slack caches that failure*, so it stays broken during business hours. The decision stands — a fence that bots walk through isn't a fence — but the consequence is bigger than first stated | Exempt verified bots from the fence, accepting that OG previews then leak the destination |
 | **One** card badge, not two | Icon soup; the tooltip names which fence is set | — |
 | Timezone is a **text input**, not a picker | A searchable IANA picker is a component in its own right; the field defaults to the viewer's own zone, which is right nearly always | Follow-up issue |
+
+## A fenced link's redirect must not be cached
+
+Found in final review, after the gate was already working. The **block** path
+sets `Cache-Control: no-store`, but the **pass** path originally did not:
+h3's `sendRedirect` sets no cache headers at all.
+
+That made the fence bypassable by design. A visitor who passes once has the
+redirect cached by their own browser, and every later scan replays it without
+ever reaching the worker — so a `09:00`–`17:00` link, scanned at 14:00, still
+opens at 03:00, and a `US`-only link keeps working after its visitor flies to
+Berlin. An access-control feature that only checks the first visit is not one.
+
+So a fenced link's redirect is now explicitly uncacheable:
+
+```ts
+if (link.allowedCountries?.length || link.activeHours)
+  setHeader(event, 'Cache-Control', 'no-store')
+```
+
+placed so it dominates **both** redirect exits (the device-redirect branch and
+the final fallback). **Unfenced links are untouched** — their cache behavior is
+unchanged, guarded by its own regression test, because changing it would alter
+every link in production for no reason.
+
+This is why the fence is safe under a 301 default even though this deployment
+pins 302: the fence carries its own cache rule rather than depending on the
+status code.
 
 ## Architecture
 

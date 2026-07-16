@@ -15,9 +15,14 @@ export function mergeVariantStats(
 
   const byIndex = new Map<number, { visits: number, visitors: number }>()
   for (const row of rows) {
-    const index = Number(row.variant)
-    if (!Number.isInteger(index) || index < 0)
+    // Accept only a non-negative integer index. Number('') is 0 and
+    // Number('1.5') is 1.5 — coercing first would misattribute a blank or
+    // malformed variant field to a real variant, which this join must never do.
+    const raw = String(row.variant).trim()
+    if (!/^\d+$/.test(raw))
       continue
+    const index = Number(raw)
+    // The endpoint GROUP BYs on the variant blob, so at most one row per index.
     byIndex.set(index, { visits: Number(row.visits) || 0, visitors: Number(row.visitors) || 0 })
   }
 

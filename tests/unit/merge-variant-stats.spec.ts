@@ -64,4 +64,21 @@ describe('mergeVariantStats', () => {
     expect(result[0]!.visits).toBe(30)
     expect(result[0]!.visitors).toBe(20)
   })
+
+  it('ignores rows with a blank or malformed variant index rather than misattributing them', () => {
+    const rows = [
+      { variant: '', visits: 99, visitors: 99 },
+      { variant: '   ', visits: 88, visitors: 88 },
+      { variant: 'abc', visits: 77, visitors: 77 },
+      { variant: '1.5', visits: 66, visitors: 66 },
+      { variant: '-1', visits: 55, visitors: 55 },
+      { variant: '0', visits: 10, visitors: 8 },
+    ]
+    const result = mergeVariantStats(variants, rows)
+    // Only the valid '0' row counts; the malformed rows must not inflate variant 0.
+    expect(result[0]).toMatchObject({ index: 0, visits: 10, visitors: 8 })
+    expect(result[1]).toMatchObject({ index: 1, visits: 0, visitors: 0 })
+    // No orphan rows created from the junk.
+    expect(result).toHaveLength(2)
+  })
 })

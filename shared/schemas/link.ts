@@ -61,6 +61,13 @@ export const LinkSchema = z.object({
     until: z.number().int().safe(),
     url: z.string().trim().url().max(2048),
   })).max(10).optional(),
+  // A/B split test: 2-10 weighted destinations. Selected per request and, when
+  // set, replaces `url` (which stays required as the fallback). Mutually
+  // exclusive with schedule/geo/device routing — see refineLinkVariants.
+  variants: z.array(z.object({
+    url: z.string().trim().url().max(2048),
+    weight: z.number().int().positive().max(1000),
+  })).min(2).max(10).optional(),
   // Access fences. Both are gates: they decide whether the link works at all,
   // not where it points. An allowlist means "only these" — an unknown country
   // is therefore blocked, not admitted.
@@ -89,6 +96,32 @@ export type Link = z.infer<typeof LinkSchema>
 // Validate that redirect links have a URL and text links have content.
 // Applied at the API boundary (create/edit/upsert) rather than on LinkSchema
 // itself, so LinkSchema stays a plain ZodObject and `.shape`/`.extend` keep working.
+// A split link's variant is chosen and logged at redirect time. If a geo,
+// device, or schedule override could then replace the destination, the served
+// URL and the logged variant would disagree and every measurement would be
+// wrong. Rather than invent a precedence, refuse the combination at write time.
+export function refineLinkVariants(
+  data: { variants?: unknown[], schedule?: unknown[], geo?: Record<string, unknown>, apple?: string, google?: string },
+  ctx: z.RefinementCtx,
+): void {
+  if (!data.variants?.length)
+    return
+  const conflicts: string[] = []
+  if (data.schedule?.length)
+    conflicts.push('scheduled destinations')
+  if (data.geo && Object.keys(data.geo).length > 0)
+    conflicts.push('geo routing')
+  if (data.apple || data.google)
+    conflicts.push('device redirects')
+  if (conflicts.length > 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `A split link cannot also use ${conflicts.join(', ')}`,
+      path: ['variants'],
+    })
+  }
+}
+
 export function refineLinkContent(
   data: { type?: 'redirect' | 'text', url?: string, content?: string, batchMode?: 'redirect' | 'checkin' },
   ctx: z.RefinementCtx,

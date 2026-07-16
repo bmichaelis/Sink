@@ -259,6 +259,11 @@
       "schedule_until": "Cho đến",
       "schedule_url": "URL đích",
       "add_schedule_entry": "Thêm đích đến theo lịch",
+      "split_test": "Thử nghiệm A/B",
+      "split_test_description": "Đưa khách đến một trong nhiều URL theo trọng số, chọn mỗi lượt truy cập. Không kết hợp được với lên lịch, định tuyến địa lý hay chuyển hướng theo thiết bị. Số liệu từng biến thể có qua API phân tích; biểu đồ sắp có.",
+      "split_test_url": "URL biến thể",
+      "split_test_weight": "Trọng số",
+      "add_variant": "Thêm biến thể",
       "geo_restrictions": "Giới hạn khu vực",
       "geo_restrictions_description": "Chỉ khách truy cập ở các quốc gia này mới mở được liên kết. Để trống nếu không giới hạn.",
       "add_allowed_country": "Thêm quốc gia",
@@ -340,6 +345,7 @@
     "reset_failed": "Đặt lại liên kết thất bại",
     "notifications_on": "Đã bật thông báo",
     "scheduled_destinations": "Đích đến theo lịch",
+    "split_test_on": "Thử nghiệm A/B",
     "access_restricted": "Truy cập bị giới hạn"
   },
   "check": {

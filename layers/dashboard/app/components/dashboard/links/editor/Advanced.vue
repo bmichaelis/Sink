@@ -49,6 +49,18 @@ function removeScheduleEntry(entries: ScheduleEntry[], index: number | string) {
   return entries.filter((_, entryIndex) => entryIndex !== targetIndex)
 }
 
+type VariantEntry = LinkFormData['variants'][number]
+
+function updateVariant(entries: VariantEntry[], index: number | string, value: Partial<VariantEntry>) {
+  const targetIndex = Number(index)
+  return entries.map((entry, entryIndex) => entryIndex === targetIndex ? { ...entry, ...value } : entry)
+}
+
+function removeVariant(entries: VariantEntry[], index: number | string) {
+  const targetIndex = Number(index)
+  return entries.filter((_, entryIndex) => entryIndex !== targetIndex)
+}
+
 function removeAllowedCountry(countries: string[], index: number | string) {
   const targetIndex = Number(index)
   return countries.filter((_, countryIndex) => countryIndex !== targetIndex)
@@ -92,6 +104,10 @@ const defaultOpenItems = computed(() => {
   const scheduleVal = props.form.getFieldValue('schedule')
   if (Array.isArray(scheduleVal) && scheduleVal.length > 0) {
     items.push('schedule')
+  }
+  const variantsVal = props.form.getFieldValue('variants')
+  if (Array.isArray(variantsVal) && variantsVal.length > 0) {
+    items.push('split_test')
   }
   const countriesVal = props.form.getFieldValue('allowedCountries')
   if (Array.isArray(countriesVal) && countriesVal.length > 0) {
@@ -446,6 +462,60 @@ async function aiOg() {
               </div>
               <Button type="button" variant="outline" size="sm" @click="field.handleChange([...field.state.value, { until: undefined, url: '' }])">
                 <Plus class="mr-2 h-4 w-4" /> {{ $t('links.form.add_schedule_entry') }}
+              </Button>
+            </div>
+          </props.form.Field>
+        </FieldGroup>
+      </AccordionContent>
+    </AccordionItem>
+
+    <AccordionItem value="split_test">
+      <AccordionTrigger :class="accordionTriggerClass">
+        {{ $t('links.form.split_test') }}
+      </AccordionTrigger>
+      <AccordionContent class="px-1">
+        <FieldGroup>
+          <props.form.Field v-slot="{ field }" name="variants">
+            <div class="space-y-2">
+              <FieldDescription class="text-xs">
+                {{ $t('links.form.split_test_description') }}
+              </FieldDescription>
+              <div
+                v-for="(item, i) in field.state.value" :key="i" class="
+                  flex flex-col gap-2
+                  sm:flex-row sm:items-start
+                "
+              >
+                <Field class="flex-1">
+                  <Input
+                    :model-value="item.url"
+                    placeholder="https://..."
+                    autocomplete="url"
+                    :aria-label="$t('links.form.split_test_url')"
+                    @input="field.handleChange(updateVariant(field.state.value, i, { url: ($event.target as HTMLInputElement).value }))"
+                  />
+                </Field>
+                <Field
+                  class="
+                    w-full
+                    sm:w-28
+                  "
+                >
+                  <Input
+                    type="number"
+                    min="1"
+                    :model-value="item.weight"
+                    :placeholder="$t('links.form.split_test_weight')"
+                    :aria-label="$t('links.form.split_test_weight')"
+                    @input="field.handleChange(updateVariant(field.state.value, i, { weight: ($event.target as HTMLInputElement).value === '' ? undefined : Number(($event.target as HTMLInputElement).value) }))"
+                  />
+                </Field>
+                <Button type="button" variant="ghost" size="icon" @click="field.handleChange(removeVariant(field.state.value, i))">
+                  <Trash2 class="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </div>
+              <Button type="button" variant="outline" size="sm" @click="field.handleChange([...field.state.value, { url: '', weight: undefined }])">
+                <Plus class="mr-2 h-4 w-4" /> {{ $t('links.form.add_variant') }}
               </Button>
             </div>
           </props.form.Field>

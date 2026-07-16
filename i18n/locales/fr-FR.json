@@ -259,6 +259,11 @@
       "schedule_until": "Jusqu'à",
       "schedule_url": "URL de destination",
       "add_schedule_entry": "Ajouter une destination planifiée",
+      "split_test": "Test A/B",
+      "split_test_description": "Diriger les visiteurs vers l'une de plusieurs URL selon un poids, choisie à chaque visite. Incompatible avec la planification, le routage géo ou les redirections par appareil. Les chiffres par variante sont disponibles via l'API analytics ; les graphiques arrivent.",
+      "split_test_url": "URL de la variante",
+      "split_test_weight": "Poids",
+      "add_variant": "Ajouter une variante",
       "geo_restrictions": "Restrictions géographiques",
       "geo_restrictions_description": "Seuls les visiteurs de ces pays peuvent ouvrir le lien. Laisser vide pour aucune restriction.",
       "add_allowed_country": "Ajouter un pays",
@@ -340,6 +345,7 @@
     "reset_failed": "Échec de la réinitialisation du lien",
     "notifications_on": "Notifications activées",
     "scheduled_destinations": "Destinations planifiées",
+    "split_test_on": "Test A/B",
     "access_restricted": "Accès restreint"
   },
   "check": {

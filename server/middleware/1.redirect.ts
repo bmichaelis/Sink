@@ -381,6 +381,16 @@ export default eventHandler(async (event) => {
       }
 
       let targetUrl = resolveScheduledUrl(link, now)
+      // Split links are mutually exclusive with schedule/geo/device (enforced at
+      // write time), so the chosen variant is always the served destination and
+      // the logged index below can never disagree with it.
+      if (link.variants?.length) {
+        const variant = selectVariant(link.variants, Math.random())
+        if (variant) {
+          targetUrl = variant.url
+          event.context.linkVariant = String(variant.index)
+        }
+      }
       const country = event.context.cloudflare?.request?.cf?.country
       if (country && typeof country === 'string' && link.geo?.[country.toUpperCase()]) {
         targetUrl = link.geo[country.toUpperCase()]!

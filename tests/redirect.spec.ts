@@ -200,6 +200,57 @@ describe('/', () => {
     expect(response.headers.get('Location')).toBe('https://example.com/photos')
   })
 
+  it('serves only the variant URLs for a split link, never the base', async () => {
+    const slug = `ab-serve-${crypto.randomUUID()}`
+    const a = 'https://example.com/variant-a'
+    const b = 'https://example.com/variant-b'
+    const createResponse = await postJson('/api/link/create', {
+      url: 'https://example.com/base',
+      slug,
+      variants: [{ url: a, weight: 1 }, { url: b, weight: 1 }],
+    })
+    expect(createResponse.status).toBe(201)
+    createdSlugs.push(slug)
+
+    const seen = new Set<string>()
+    for (let i = 0; i < 40; i++) {
+      const response = await fetch(`/${slug}`, { redirect: 'manual' })
+      expect(response.status).toBe(302)
+      const location = response.headers.get('Location')
+      // The base URL must never be served while variants are set.
+      expect(location === a || location === b).toBe(true)
+      if (location)
+        seen.add(location)
+    }
+    // Over 40 even-weighted draws, both variants should appear (flake
+    // probability 2 * 0.5^40, astronomically small).
+    expect(seen.has(a) && seen.has(b)).toBe(true)
+  })
+
+  it('redirects a non-variant link exactly as before', async () => {
+    const slug = `ab-none-${crypto.randomUUID()}`
+    const createResponse = await postJson('/api/link/create', {
+      url: 'https://example.com/plain',
+      slug,
+    })
+    expect(createResponse.status).toBe(201)
+    createdSlugs.push(slug)
+
+    const response = await fetch(`/${slug}`, { redirect: 'manual' })
+    expect(response.status).toBe(302)
+    expect(response.headers.get('Location')).toBe('https://example.com/plain')
+  })
+
+  it('rejects variants combined with geo routing', async () => {
+    const response = await postJson('/api/link/create', {
+      url: 'https://example.com',
+      slug: `ab-reject-geo-${crypto.randomUUID()}`,
+      variants: [{ url: 'https://example.com/a', weight: 1 }, { url: 'https://example.com/b', weight: 1 }],
+      geo: { DE: 'https://example.com/de' },
+    })
+    expect(response.status).toBe(400)
+  })
+
   it('redirects normally from an allowed country', async () => {
     const slug = `fence-allow-${crypto.randomUUID()}`
     const createResponse = await postJson('/api/link/create', {

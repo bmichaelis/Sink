@@ -259,6 +259,11 @@
       "schedule_until": "截止时间",
       "schedule_url": "目标网址",
       "add_schedule_entry": "添加定时目标",
+      "split_test": "A/B 分流测试",
+      "split_test_description": "按权重将访问者引导至多个网址之一，每次访问随机选择。不能与定时、地区路由或设备跳转同时使用。各变体的数据可通过分析 API 获取；仪表盘图表即将推出。",
+      "split_test_url": "变体网址",
+      "split_test_weight": "权重",
+      "add_variant": "添加变体",
       "country_code": "国家/地区代码 (例如 CN)",
       "select_country": "选择国家/地区",
       "search_country": "搜索国家/地区...",
@@ -330,7 +335,8 @@
     "reset_success": "链接重置成功",
     "reset_failed": "链接重置失败",
     "notifications_on": "通知已开启",
-    "scheduled_destinations": "定时目标已设置"
+    "scheduled_destinations": "定时目标已设置",
+    "split_test_on": "A/B 分流测试"
   },
   "check": {
     "title": "链接检测",

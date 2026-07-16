@@ -259,6 +259,11 @@
       "schedule_until": "截止時間",
       "schedule_url": "目標網址",
       "add_schedule_entry": "新增定時目標",
+      "split_test": "A/B 分流測試",
+      "split_test_description": "依權重將訪客導向多個網址之一，每次造訪隨機選擇。不能與定時、地區路由或裝置跳轉同時使用。各變體的數據可透過分析 API 取得；儀表板圖表即將推出。",
+      "split_test_url": "變體網址",
+      "split_test_weight": "權重",
+      "add_variant": "新增變體",
       "country_code": "國家/地區代碼 (例如 TW)",
       "select_country": "選擇國家/地區",
       "search_country": "搜尋國家/地區...",
@@ -330,7 +335,8 @@
     "reset_success": "連結重置成功",
     "reset_failed": "連結重置失敗",
     "notifications_on": "通知已開啟",
-    "scheduled_destinations": "定時目標已設定"
+    "scheduled_destinations": "定時目標已設定",
+    "split_test_on": "A/B 分流測試"
   },
   "check": {
     "title": "連結檢測",

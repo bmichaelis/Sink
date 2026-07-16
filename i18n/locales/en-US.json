@@ -259,6 +259,11 @@
       "schedule_until": "Until",
       "schedule_url": "Destination URL",
       "add_schedule_entry": "Add Scheduled Destination",
+      "split_test": "Split Test (A/B)",
+      "split_test_description": "Send visitors to one of several URLs by weight, chosen per visit. Can't be combined with scheduling, geo routing, or device redirects. Per-variant numbers are available via the analytics API; in-dashboard charts are coming.",
+      "split_test_url": "Variant URL",
+      "split_test_weight": "Weight",
+      "add_variant": "Add Variant",
       "country_code": "Country Code (e.g. US)",
       "select_country": "Select country",
       "search_country": "Search country...",
@@ -330,7 +335,8 @@
     "reset_success": "Link reset successfully",
     "reset_failed": "Failed to reset link",
     "notifications_on": "Notifications on",
-    "scheduled_destinations": "Scheduled destinations"
+    "scheduled_destinations": "Scheduled destinations",
+    "split_test_on": "A/B split test"
   },
   "check": {
     "title": "Link Check",

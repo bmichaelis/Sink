@@ -54,5 +54,9 @@ onBeforeMount(() => {
       <DashboardAnalysisHeatmap v-if="viewMode === 'heatmap'" :metric="heatmapMetric" />
     </TabsContent>
   </Tabs>
+  <DashboardAnalysisSplitTest
+    v-if="link && link.variants?.length"
+    :link="link"
+  />
   <DashboardAnalysisMetrics />
 </template>

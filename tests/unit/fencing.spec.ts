@@ -85,4 +85,12 @@ describe('evaluateFence', () => {
   it('does not throw on an invalid timezone', () => {
     expect(() => evaluateFence({ activeHours: { start: '09:00', end: '17:00', tz: 'Mars/Olympus' } }, 'US', NOON_MST)).not.toThrow()
   })
+
+  it('ignores a malformed window rather than blocking forever', () => {
+    // Unreachable via the schema, but a corrupt value must fail open, matching
+    // the start === end rule — never silently brick a link.
+    expect(evaluateFence({ activeHours: { start: 'aa:bb', end: '17:00', tz: 'Etc/UTC' } }, 'US', NOON_MST)).toBe(null)
+    expect(evaluateFence({ activeHours: { start: '', end: '', tz: 'Etc/UTC' } }, 'US', NOON_MST)).toBe(null)
+    expect(evaluateFence({ activeHours: { start: '9', end: '17:00', tz: 'Etc/UTC' } }, 'US', NOON_MST)).toBe(null)
+  })
 })

@@ -199,39 +199,6 @@ describe('/', () => {
     expect(response.status).toBe(302)
     expect(response.headers.get('Location')).toBe('https://example.com/photos')
   })
-})
-
-describe.sequential('password protected redirect', () => {
-  it('shows password page without password, rejects wrong password, and redirects with correct password', async () => {
-    const password = 'redirect-secret123'
-    const payload = {
-      url: 'https://example.com/redirect-target',
-      slug: `redirect-password-${crypto.randomUUID()}`,
-      password,
-    }
-
-    const createResponse = await postJson('/api/link/create', payload)
-    expect(createResponse.status).toBe(201)
-    createdSlugs.push(payload.slug)
-
-    const passwordPageResponse = await fetch(`/${payload.slug}`, { redirect: 'manual' })
-    expect(passwordPageResponse.status).toBe(200)
-    expect(await passwordPageResponse.text()).toContain('Password Required')
-
-    const wrongPasswordResponse = await fetch(`/${payload.slug}`, {
-      redirect: 'manual',
-      headers: { 'x-link-password': 'wrong-password' },
-    })
-    expect(wrongPasswordResponse.status).toBe(403)
-
-    const correctPasswordResponse = await fetch(`/${payload.slug}`, {
-      redirect: 'manual',
-      headers: { 'x-link-password': password },
-    })
-    expect(correctPasswordResponse.status).toBeGreaterThanOrEqual(300)
-    expect(correctPasswordResponse.status).toBeLessThan(400)
-    expect(correctPasswordResponse.headers.get('location')).toBe(payload.url)
-  })
 
   it('redirects normally from an allowed country', async () => {
     const slug = `fence-allow-${crypto.randomUUID()}`
@@ -290,11 +257,17 @@ describe.sequential('password protected redirect', () => {
 
   it('redirects inside the active-hours window', async () => {
     const slug = `fence-open-${crypto.randomUUID()}`
-    // A window that spans the whole day in UTC always includes "now".
+    const nowHour = new Date().getUTCHours()
+    // A window centred on "now" (±2h) is always open, and wide enough that an
+    // hour rolling over mid-test cannot reach an edge. The modulo makes it
+    // wrap midnight correctly, which the resolver handles.
+    const start = `${String((nowHour + 22) % 24).padStart(2, '0')}:00`
+    const end = `${String((nowHour + 2) % 24).padStart(2, '0')}:00`
+
     const createResponse = await postJson('/api/link/create', {
       url: 'https://example.com/shop',
       slug,
-      activeHours: { start: '00:00', end: '23:59', tz: 'Etc/UTC' },
+      activeHours: { start, end, tz: 'Etc/UTC' },
     })
     expect(createResponse.status).toBe(201)
     createdSlugs.push(slug)
@@ -330,5 +303,38 @@ describe.sequential('password protected redirect', () => {
     const allowedResponse = await fetch(`/${slug}`, allowed as RequestInit)
     expect(allowedResponse.status).toBe(302)
     expect(allowedResponse.headers.get('Location')).toBe('https://example.com/voucher')
+  })
+})
+
+describe.sequential('password protected redirect', () => {
+  it('shows password page without password, rejects wrong password, and redirects with correct password', async () => {
+    const password = 'redirect-secret123'
+    const payload = {
+      url: 'https://example.com/redirect-target',
+      slug: `redirect-password-${crypto.randomUUID()}`,
+      password,
+    }
+
+    const createResponse = await postJson('/api/link/create', payload)
+    expect(createResponse.status).toBe(201)
+    createdSlugs.push(payload.slug)
+
+    const passwordPageResponse = await fetch(`/${payload.slug}`, { redirect: 'manual' })
+    expect(passwordPageResponse.status).toBe(200)
+    expect(await passwordPageResponse.text()).toContain('Password Required')
+
+    const wrongPasswordResponse = await fetch(`/${payload.slug}`, {
+      redirect: 'manual',
+      headers: { 'x-link-password': 'wrong-password' },
+    })
+    expect(wrongPasswordResponse.status).toBe(403)
+
+    const correctPasswordResponse = await fetch(`/${payload.slug}`, {
+      redirect: 'manual',
+      headers: { 'x-link-password': password },
+    })
+    expect(correctPasswordResponse.status).toBeGreaterThanOrEqual(300)
+    expect(correctPasswordResponse.status).toBeLessThan(400)
+    expect(correctPasswordResponse.headers.get('location')).toBe(payload.url)
   })
 })

@@ -45,8 +45,12 @@ export function evaluateFence(link: FenceableLink, country: string | undefined, 
     const start = hhmmToMinutes(hours.start)
     const end = hhmmToMinutes(hours.end)
     // A zero-width window is meaningless; treat it as always active so a typo
-    // cannot silently kill a link.
-    if (start !== end) {
+    // cannot silently kill a link. A malformed "HH:MM" (unreachable via the
+    // Zod schema, but a corrupt stored value must never be trusted) yields
+    // NaN, which fails every comparison below and would otherwise block the
+    // link forever with no diagnostic. Treat that the same as start === end:
+    // ignore the window rather than silently bricking the link.
+    if (start !== end && Number.isFinite(start) && Number.isFinite(end)) {
       let current: number
       try {
         current = minutesInZone(nowMs, hours.tz)

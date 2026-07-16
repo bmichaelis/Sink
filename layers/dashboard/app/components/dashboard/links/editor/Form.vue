@@ -63,6 +63,10 @@ const form = useForm({
     geo: props.link.geo ? Object.entries(props.link.geo).map(([country, url]) => ({ country, url })) : [],
     schedule: (props.link.schedule ?? []).map(s => ({ until: s.until as number | undefined, url: s.url })),
     variants: (props.link.variants ?? []).map(v => ({ url: v.url, weight: v.weight as number | undefined })),
+    allowedCountries: props.link.allowedCountries ? [...props.link.allowedCountries] : [],
+    activeHours: props.link.activeHours
+      ? { ...props.link.activeHours }
+      : { start: '', end: '', tz: '' },
   } satisfies LinkFormData,
   onSubmit: async ({ value }) => {
     try {
@@ -109,6 +113,14 @@ const form = useForm({
         geo: Object.keys(geoRecord).length > 0 ? geoRecord : undefined,
         schedule: scheduleEntries.length > 0 ? scheduleEntries : undefined,
         variants: variantEntries.length >= 2 ? variantEntries : undefined,
+        allowedCountries: value.allowedCountries.filter(c => c.trim()).length > 0
+          ? value.allowedCountries.filter(c => c.trim()).map(c => c.trim().toUpperCase())
+          : undefined,
+        // Only send a window when it is complete; a half-filled one is still
+        // being typed and must not 400 the whole save.
+        activeHours: (value.activeHours.start && value.activeHours.end && value.activeHours.tz)
+          ? { start: value.activeHours.start, end: value.activeHours.end, tz: value.activeHours.tz.trim() }
+          : undefined,
       }
       const { link: newLink } = await useAPI<{ link: Link }>(
         props.isEdit ? '/api/link/edit' : '/api/link/create',

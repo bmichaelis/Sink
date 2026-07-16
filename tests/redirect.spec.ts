@@ -1,5 +1,5 @@
 import { afterAll, describe, expect, it } from 'vitest'
-import { deleteStoredLinks, fetch, postJson } from './utils'
+import { deleteStoredLinks, fetch, fetchWithAuth, postJson } from './utils'
 
 type CfRequestInit = RequestInit & { cf?: { country?: string } }
 
@@ -249,6 +249,146 @@ describe('/', () => {
       geo: { DE: 'https://example.com/de' },
     })
     expect(response.status).toBe(400)
+  })
+
+  it('redirects normally from an allowed country', async () => {
+    const slug = `fence-allow-${crypto.randomUUID()}`
+    const createResponse = await postJson('/api/link/create', {
+      url: 'https://example.com/allowed',
+      slug,
+      allowedCountries: ['US'],
+    })
+    expect(createResponse.status).toBe(201)
+    createdSlugs.push(slug)
+
+    const options: CfRequestInit = { redirect: 'manual', cf: { country: 'US' } }
+    const response = await fetch(`/${slug}`, options as RequestInit)
+
+    expect(response.status).toBe(302)
+    expect(response.headers.get('Location')).toBe('https://example.com/allowed')
+  })
+
+  it('blocks with 403 from a country outside the allowlist', async () => {
+    const slug = `fence-block-${crypto.randomUUID()}`
+    const createResponse = await postJson('/api/link/create', {
+      url: 'https://example.com/allowed',
+      slug,
+      allowedCountries: ['US'],
+    })
+    expect(createResponse.status).toBe(201)
+    createdSlugs.push(slug)
+
+    const options: CfRequestInit = { redirect: 'manual', cf: { country: 'DE' } }
+    const response = await fetch(`/${slug}`, options as RequestInit)
+
+    expect(response.status).toBe(403)
+    expect(response.headers.get('Location')).toBe(null)
+  })
+
+  it('blocks with 403 outside the active-hours window', async () => {
+    const slug = `fence-hours-${crypto.randomUUID()}`
+    // Build a window in UTC that deliberately excludes "now", so the test is
+    // deterministic rather than dependent on the wall clock.
+    const nowHour = new Date().getUTCHours()
+    const start = `${String((nowHour + 2) % 24).padStart(2, '0')}:00`
+    const end = `${String((nowHour + 4) % 24).padStart(2, '0')}:00`
+
+    const createResponse = await postJson('/api/link/create', {
+      url: 'https://example.com/shop',
+      slug,
+      activeHours: { start, end, tz: 'Etc/UTC' },
+    })
+    expect(createResponse.status).toBe(201)
+    createdSlugs.push(slug)
+
+    const response = await fetch(`/${slug}`, { redirect: 'manual' })
+
+    expect(response.status).toBe(403)
+  })
+
+  it('redirects inside the active-hours window', async () => {
+    const slug = `fence-open-${crypto.randomUUID()}`
+    const nowHour = new Date().getUTCHours()
+    // A window centred on "now" (±2h) is always open, and wide enough that an
+    // hour rolling over mid-test cannot reach an edge. The modulo makes it
+    // wrap midnight correctly, which the resolver handles.
+    const start = `${String((nowHour + 22) % 24).padStart(2, '0')}:00`
+    const end = `${String((nowHour + 2) % 24).padStart(2, '0')}:00`
+
+    const createResponse = await postJson('/api/link/create', {
+      url: 'https://example.com/shop',
+      slug,
+      activeHours: { start, end, tz: 'Etc/UTC' },
+    })
+    expect(createResponse.status).toBe(201)
+    createdSlugs.push(slug)
+
+    const response = await fetch(`/${slug}`, { redirect: 'manual' })
+
+    expect(response.status).toBe(302)
+    expect(response.headers.get('Location')).toBe('https://example.com/shop')
+  })
+
+  it('does not burn a hit when a visitor is fenced out', async () => {
+    const slug = `fence-hit-${crypto.randomUUID()}`
+    const createResponse = await postJson('/api/link/create', {
+      url: 'https://example.com/voucher',
+      slug,
+      maxHits: 1,
+      allowedCountries: ['US'],
+    })
+    expect(createResponse.status).toBe(201)
+    createdSlugs.push(slug)
+
+    const blocked: CfRequestInit = { redirect: 'manual', cf: { country: 'DE' } }
+    const blockedResponse = await fetch(`/${slug}`, blocked as RequestInit)
+    expect(blockedResponse.status).toBe(403)
+
+    // The blocked scan must not have consumed the single available hit.
+    const queryResponse = await fetchWithAuth(`/api/link/query?slug=${slug}`)
+    const link = await queryResponse.json() as { hitCount?: number }
+    expect(link.hitCount ?? 0).toBe(0)
+
+    // ...and the link still works for someone who is allowed through.
+    const allowed: CfRequestInit = { redirect: 'manual', cf: { country: 'US' } }
+    const allowedResponse = await fetch(`/${slug}`, allowed as RequestInit)
+    expect(allowedResponse.status).toBe(302)
+    expect(allowedResponse.headers.get('Location')).toBe('https://example.com/voucher')
+  })
+
+  it('marks a fenced link\'s redirect uncacheable', async () => {
+    const slug = `fence-nocache-${crypto.randomUUID()}`
+    const createResponse = await postJson('/api/link/create', {
+      url: 'https://example.com/allowed',
+      slug,
+      allowedCountries: ['US'],
+    })
+    expect(createResponse.status).toBe(201)
+    createdSlugs.push(slug)
+
+    const options: CfRequestInit = { redirect: 'manual', cf: { country: 'US' } }
+    const response = await fetch(`/${slug}`, options as RequestInit)
+
+    // Passing the fence must not produce a cacheable redirect: a replayed
+    // cache hit would never reach the worker and would bypass the fence.
+    expect(response.status).toBe(302)
+    expect(response.headers.get('Cache-Control')).toBe('no-store')
+  })
+
+  it('leaves an unfenced link\'s redirect cacheable as before', async () => {
+    const slug = `nofence-cache-${crypto.randomUUID()}`
+    const createResponse = await postJson('/api/link/create', {
+      url: 'https://example.com/plain',
+      slug,
+    })
+    expect(createResponse.status).toBe(201)
+    createdSlugs.push(slug)
+
+    const response = await fetch(`/${slug}`, { redirect: 'manual' })
+
+    // Regression: unfenced links must keep their existing cache behavior.
+    expect(response.status).toBe(302)
+    expect(response.headers.get('Cache-Control')).toBe(null)
   })
 })
 

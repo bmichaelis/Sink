@@ -15,6 +15,8 @@ const editableOptionalLinkFields = [
   'geo',
   'schedule',
   'variants',
+  'allowedCountries',
+  'activeHours',
   'content',
   'maxHits',
   'viewExpireSeconds',

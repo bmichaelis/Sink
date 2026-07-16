@@ -1,3 +1,4 @@
+import { isValidTimezone } from '#shared/utils/timezone'
 import { customAlphabet } from 'nanoid'
 import { z } from 'zod'
 import { LINK_PASSWORD_MASK_PREFIX } from '../utils/link-password'
@@ -67,6 +68,17 @@ export const LinkSchema = z.object({
     url: z.string().trim().url().max(2048),
     weight: z.number().int().positive().max(1000),
   })).min(2).max(10).optional(),
+  // Access fences. Both are gates: they decide whether the link works at all,
+  // not where it points. An allowlist means "only these" — an unknown country
+  // is therefore blocked, not admitted.
+  allowedCountries: z.array(z.string().trim().toUpperCase().regex(/^[A-Z]{2}$/)).max(50).optional(),
+  // Daily window, start-inclusive and end-exclusive. start > end wraps
+  // midnight; start === end means always active.
+  activeHours: z.object({
+    start: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+    end: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+    tz: z.string().trim().min(1).max(64).refine(isValidTimezone, 'Invalid IANA timezone'),
+  }).optional(),
   maxHits: z.number().int().positive().optional(),
   hitCount: z.number().int().nonnegative().default(0),
   viewExpireSeconds: z.number().int().positive().optional(),

@@ -264,6 +264,15 @@
       "split_test_url": "Variant URL",
       "split_test_weight": "Weight",
       "add_variant": "Add Variant",
+      "geo_restrictions": "Geo Restrictions",
+      "geo_restrictions_description": "Only visitors in these countries can open the link. Leave empty for no restriction.",
+      "add_allowed_country": "Add Country",
+      "active_hours": "Active Hours",
+      "active_hours_description": "The link only works during this daily window. Leave empty to always work.",
+      "active_hours_start": "Start",
+      "active_hours_end": "End",
+      "active_hours_tz": "Timezone",
+      "active_hours_incomplete": "Set the start, end, and timezone — an incomplete window is not saved.",
       "country_code": "Country Code (e.g. US)",
       "select_country": "Select country",
       "search_country": "Search country...",
@@ -336,7 +345,8 @@
     "reset_failed": "Failed to reset link",
     "notifications_on": "Notifications on",
     "scheduled_destinations": "Scheduled destinations",
-    "split_test_on": "A/B split test"
+    "split_test_on": "A/B split test",
+    "access_restricted": "Access restricted"
   },
   "check": {
     "title": "Link Check",

@@ -62,6 +62,7 @@ const form = useForm({
     unsafe: props.link.unsafe ?? false,
     geo: props.link.geo ? Object.entries(props.link.geo).map(([country, url]) => ({ country, url })) : [],
     schedule: (props.link.schedule ?? []).map(s => ({ until: s.until as number | undefined, url: s.url })),
+    variants: (props.link.variants ?? []).map(v => ({ url: v.url, weight: v.weight as number | undefined })),
   } satisfies LinkFormData,
   onSubmit: async ({ value }) => {
     try {
@@ -78,6 +79,11 @@ const form = useForm({
       const scheduleEntries = (value.schedule ?? [])
         .filter((s): s is { until: number, url: string } => typeof s.until === 'number' && s.url.trim() !== '')
         .map(s => ({ until: s.until, url: s.url.trim() }))
+      // Keep only complete rows (a URL and a positive weight); a half-typed row
+      // must not fail validation on save.
+      const variantEntries = (value.variants ?? [])
+        .filter((v): v is { url: string, weight: number } => v.url.trim() !== '' && typeof v.weight === 'number' && v.weight > 0)
+        .map(v => ({ url: v.url.trim(), weight: v.weight }))
       const isText = value.type === 'text'
       const linkData = {
         type: value.type,
@@ -102,6 +108,7 @@ const form = useForm({
         unsafe: props.isEdit ? value.unsafe : value.unsafe || undefined,
         geo: Object.keys(geoRecord).length > 0 ? geoRecord : undefined,
         schedule: scheduleEntries.length > 0 ? scheduleEntries : undefined,
+        variants: variantEntries.length >= 2 ? variantEntries : undefined,
       }
       const { link: newLink } = await useAPI<{ link: Link }>(
         props.isEdit ? '/api/link/edit' : '/api/link/create',

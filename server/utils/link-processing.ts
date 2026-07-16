@@ -14,6 +14,7 @@ const editableOptionalLinkFields = [
   'unsafe',
   'geo',
   'schedule',
+  'variants',
   'content',
   'maxHits',
   'viewExpireSeconds',

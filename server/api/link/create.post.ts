@@ -1,6 +1,6 @@
-import { LinkSchema, refineLinkContent } from '#shared/schemas/link'
+import { LinkSchema, refineLinkContent, refineLinkVariants } from '#shared/schemas/link'
 
-const CreateLinkSchema = LinkSchema.superRefine(refineLinkContent)
+const CreateLinkSchema = LinkSchema.superRefine(refineLinkContent).superRefine(refineLinkVariants)
 
 defineRouteMeta({
   openAPI: {

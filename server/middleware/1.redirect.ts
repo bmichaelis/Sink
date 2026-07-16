@@ -445,6 +445,12 @@ export default eventHandler(async (event) => {
       if (link.notifyUrl)
         queueScanNotification(event, link)
 
+      // A fenced link's decision depends on when and where the visitor is, so
+      // its redirect must never be cached: a browser replaying a cached hit
+      // would skip the worker entirely and walk straight past the fence.
+      if (link.allowedCountries?.length || link.activeHours)
+        setHeader(event, 'Cache-Control', 'no-store')
+
       if (deviceRedirectUrl) {
         return sendRedirect(event, finalTargetUrl, +redirectStatusCode)
       }

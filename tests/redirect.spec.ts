@@ -304,6 +304,41 @@ describe('/', () => {
     expect(allowedResponse.status).toBe(302)
     expect(allowedResponse.headers.get('Location')).toBe('https://example.com/voucher')
   })
+
+  it('marks a fenced link\'s redirect uncacheable', async () => {
+    const slug = `fence-nocache-${crypto.randomUUID()}`
+    const createResponse = await postJson('/api/link/create', {
+      url: 'https://example.com/allowed',
+      slug,
+      allowedCountries: ['US'],
+    })
+    expect(createResponse.status).toBe(201)
+    createdSlugs.push(slug)
+
+    const options: CfRequestInit = { redirect: 'manual', cf: { country: 'US' } }
+    const response = await fetch(`/${slug}`, options as RequestInit)
+
+    // Passing the fence must not produce a cacheable redirect: a replayed
+    // cache hit would never reach the worker and would bypass the fence.
+    expect(response.status).toBe(302)
+    expect(response.headers.get('Cache-Control')).toBe('no-store')
+  })
+
+  it('leaves an unfenced link\'s redirect cacheable as before', async () => {
+    const slug = `nofence-cache-${crypto.randomUUID()}`
+    const createResponse = await postJson('/api/link/create', {
+      url: 'https://example.com/plain',
+      slug,
+    })
+    expect(createResponse.status).toBe(201)
+    createdSlugs.push(slug)
+
+    const response = await fetch(`/${slug}`, { redirect: 'manual' })
+
+    // Regression: unfenced links must keep their existing cache behavior.
+    expect(response.status).toBe(302)
+    expect(response.headers.get('Cache-Control')).toBe(null)
+  })
 })
 
 describe.sequential('password protected redirect', () => {

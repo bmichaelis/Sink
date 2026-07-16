@@ -267,6 +267,7 @@
       "active_hours_start": "Início",
       "active_hours_end": "Fim",
       "active_hours_tz": "Fuso horário",
+      "active_hours_incomplete": "Defina início, fim e fuso horário — uma janela incompleta não é guardada.",
       "country_code": "Código do País (ex. PT)",
       "select_country": "Selecionar país",
       "search_country": "Pesquisar país...",

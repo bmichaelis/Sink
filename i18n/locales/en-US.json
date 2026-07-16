@@ -267,6 +267,7 @@
       "active_hours_start": "Start",
       "active_hours_end": "End",
       "active_hours_tz": "Timezone",
+      "active_hours_incomplete": "Set the start, end, and timezone — an incomplete window is not saved.",
       "country_code": "Country Code (e.g. US)",
       "select_country": "Select country",
       "search_country": "Search country...",

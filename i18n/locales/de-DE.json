@@ -267,6 +267,7 @@
       "active_hours_start": "Start",
       "active_hours_end": "Ende",
       "active_hours_tz": "Zeitzone",
+      "active_hours_incomplete": "Start, Ende und Zeitzone festlegen — ein unvollständiges Zeitfenster wird nicht gespeichert.",
       "country_code": "Ländercode (z. B. DE)",
       "select_country": "Land auswählen",
       "search_country": "Land suchen...",

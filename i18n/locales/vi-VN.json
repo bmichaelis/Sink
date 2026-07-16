@@ -267,6 +267,7 @@
       "active_hours_start": "Bắt đầu",
       "active_hours_end": "Kết thúc",
       "active_hours_tz": "Múi giờ",
+      "active_hours_incomplete": "Hãy đặt giờ bắt đầu, kết thúc và múi giờ — khung giờ chưa đầy đủ sẽ không được lưu.",
       "country_code": "Mã quốc gia (ví dụ: VN)",
       "select_country": "Chọn quốc gia",
       "search_country": "Tìm quốc gia...",

@@ -267,6 +267,7 @@
       "active_hours_start": "Mulai",
       "active_hours_end": "Selesai",
       "active_hours_tz": "Zona Waktu",
+      "active_hours_incomplete": "Atur waktu mulai, selesai, dan zona waktu — rentang yang tidak lengkap tidak disimpan.",
       "country_code": "Kode Negara (mis. ID)",
       "select_country": "Pilih negara",
       "search_country": "Cari negara...",

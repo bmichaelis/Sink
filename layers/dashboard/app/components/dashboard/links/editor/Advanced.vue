@@ -65,6 +65,14 @@ function formatPasswordDisplay(password: string) {
     : password
 }
 
+// A window is only stored when start, end and tz are all set (see Form.vue's
+// submit). Partial input is otherwise dropped silently, taking the times the
+// user did set with it — so say so rather than discarding their work quietly.
+function isPartialWindow(hours: { start: string, end: string, tz: string }): boolean {
+  const filled = [hours.start, hours.end, hours.tz].filter(Boolean).length
+  return filled > 0 && filled < 3
+}
+
 // Compute default open items based on existing values
 const defaultOpenItems = computed(() => {
   const items: string[] = []
@@ -545,6 +553,13 @@ async function aiOg() {
                   />
                 </Field>
               </div>
+              <FieldDescription
+                v-if="isPartialWindow(field.state.value)" class="
+                  text-xs text-destructive
+                "
+              >
+                {{ $t('links.form.active_hours_incomplete') }}
+              </FieldDescription>
             </div>
           </props.form.Field>
         </FieldGroup>

@@ -267,6 +267,7 @@
       "active_hours_start": "開始",
       "active_hours_end": "結束",
       "active_hours_tz": "時區",
+      "active_hours_incomplete": "請設定開始時間、結束時間和時區——不完整的時段不會被儲存。",
       "country_code": "國家/地區代碼 (例如 TW)",
       "select_country": "選擇國家/地區",
       "search_country": "搜尋國家/地區...",

@@ -267,6 +267,7 @@
       "active_hours_start": "Inizio",
       "active_hours_end": "Fine",
       "active_hours_tz": "Fuso orario",
+      "active_hours_incomplete": "Imposta inizio, fine e fuso orario — una fascia incompleta non viene salvata.",
       "country_code": "Codice Paese (es. IT)",
       "select_country": "Seleziona paese",
       "search_country": "Cerca paese...",

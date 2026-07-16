@@ -267,6 +267,7 @@
       "active_hours_start": "Début",
       "active_hours_end": "Fin",
       "active_hours_tz": "Fuseau horaire",
+      "active_hours_incomplete": "Définissez le début, la fin et le fuseau horaire — une plage incomplète n'est pas enregistrée.",
       "country_code": "Code pays (par ex. FR)",
       "select_country": "Sélectionner un pays",
       "search_country": "Rechercher un pays...",

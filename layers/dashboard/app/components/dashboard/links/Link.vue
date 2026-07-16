@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CounterData, Link } from '@/types'
 import { useClipboard } from '@vueuse/core'
-import { Bell, CalendarPlus2, Clock, Copy, CopyCheck, Eraser, Eye, FileText, Flame, Gauge, Hourglass, Link as LinkIcon, MousePointerClick, QrCode, RotateCcw, ShieldAlert, SquareChevronDown, SquarePen, Timer, Users } from 'lucide-vue-next'
+import { Bell, CalendarPlus2, Clock, Copy, CopyCheck, Eraser, Eye, FileText, Flame, Gauge, Hourglass, Link as LinkIcon, MousePointerClick, QrCode, RotateCcw, ShieldAlert, ShieldBan, SquareChevronDown, SquarePen, Timer, Users } from 'lucide-vue-next'
 import { parseURL } from 'ufo'
 import { toast } from 'vue-sonner'
 
@@ -367,6 +367,25 @@ function copyLink() {
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>{{ $t('links.scheduled_destinations') }}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </template>
+            <template v-if="link.allowedCountries?.length || link.activeHours">
+              <Separator orientation="vertical" />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger as-child>
+                    <span
+                      class="
+                        inline-flex items-center leading-5 whitespace-nowrap
+                      "
+                    >
+                      <ShieldBan aria-hidden="true" class="h-4 w-4" />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{{ $t('links.access_restricted') }}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>

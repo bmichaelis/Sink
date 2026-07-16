@@ -259,6 +259,15 @@
       "schedule_until": "截止时间",
       "schedule_url": "目标网址",
       "add_schedule_entry": "添加定时目标",
+      "geo_restrictions": "地区限制",
+      "geo_restrictions_description": "仅这些国家/地区的访问者可以打开链接。留空则不限制。",
+      "add_allowed_country": "添加国家/地区",
+      "active_hours": "活动时段",
+      "active_hours_description": "链接仅在该每日时段内有效。留空则始终有效。",
+      "active_hours_start": "开始",
+      "active_hours_end": "结束",
+      "active_hours_tz": "时区",
+      "active_hours_incomplete": "请设置开始时间、结束时间和时区——不完整的时段不会被保存。",
       "country_code": "国家/地区代码 (例如 CN)",
       "select_country": "选择国家/地区",
       "search_country": "搜索国家/地区...",
@@ -330,7 +339,8 @@
     "reset_success": "链接重置成功",
     "reset_failed": "链接重置失败",
     "notifications_on": "通知已开启",
-    "scheduled_destinations": "定时目标已设置"
+    "scheduled_destinations": "定时目标已设置",
+    "access_restricted": "访问受限"
   },
   "check": {
     "title": "链接检测",

@@ -259,6 +259,15 @@
       "schedule_until": "Jusqu'à",
       "schedule_url": "URL de destination",
       "add_schedule_entry": "Ajouter une destination planifiée",
+      "geo_restrictions": "Restrictions géographiques",
+      "geo_restrictions_description": "Seuls les visiteurs de ces pays peuvent ouvrir le lien. Laisser vide pour aucune restriction.",
+      "add_allowed_country": "Ajouter un pays",
+      "active_hours": "Heures d'activité",
+      "active_hours_description": "Le lien ne fonctionne que pendant cette plage horaire quotidienne. Laisser vide pour qu'il fonctionne toujours.",
+      "active_hours_start": "Début",
+      "active_hours_end": "Fin",
+      "active_hours_tz": "Fuseau horaire",
+      "active_hours_incomplete": "Définissez le début, la fin et le fuseau horaire — une plage incomplète n'est pas enregistrée.",
       "country_code": "Code pays (par ex. FR)",
       "select_country": "Sélectionner un pays",
       "search_country": "Rechercher un pays...",
@@ -330,7 +339,8 @@
     "reset_success": "Lien réinitialisé avec succès",
     "reset_failed": "Échec de la réinitialisation du lien",
     "notifications_on": "Notifications activées",
-    "scheduled_destinations": "Destinations planifiées"
+    "scheduled_destinations": "Destinations planifiées",
+    "access_restricted": "Accès restreint"
   },
   "check": {
     "title": "Link Check",

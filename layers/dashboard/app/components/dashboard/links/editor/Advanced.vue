@@ -49,10 +49,28 @@ function removeScheduleEntry(entries: ScheduleEntry[], index: number | string) {
   return entries.filter((_, entryIndex) => entryIndex !== targetIndex)
 }
 
+function removeAllowedCountry(countries: string[], index: number | string) {
+  const targetIndex = Number(index)
+  return countries.filter((_, countryIndex) => countryIndex !== targetIndex)
+}
+
+function updateAllowedCountry(countries: string[], index: number | string, value: string) {
+  const targetIndex = Number(index)
+  return countries.map((country, countryIndex) => countryIndex === targetIndex ? value.toUpperCase() : country)
+}
+
 function formatPasswordDisplay(password: string) {
   return isMaskedLinkPassword(password)
     ? password.replace(LINK_PASSWORD_MASK_PREFIX, '')
     : password
+}
+
+// A window is only stored when start, end and tz are all set (see Form.vue's
+// submit). Partial input is otherwise dropped silently, taking the times the
+// user did set with it — so say so rather than discarding their work quietly.
+function isPartialWindow(hours: { start: string, end: string, tz: string }): boolean {
+  const filled = [hours.start, hours.end, hours.tz].filter(Boolean).length
+  return filled > 0 && filled < 3
 }
 
 // Compute default open items based on existing values
@@ -74,6 +92,14 @@ const defaultOpenItems = computed(() => {
   const scheduleVal = props.form.getFieldValue('schedule')
   if (Array.isArray(scheduleVal) && scheduleVal.length > 0) {
     items.push('schedule')
+  }
+  const countriesVal = props.form.getFieldValue('allowedCountries')
+  if (Array.isArray(countriesVal) && countriesVal.length > 0) {
+    items.push('geo_restrictions')
+  }
+  const hoursVal = props.form.getFieldValue('activeHours') as { start?: string, end?: string } | undefined
+  if (hoursVal?.start && hoursVal?.end) {
+    items.push('active_hours')
   }
   if (props.form.getFieldValue('notifyUrl')) {
     items.push('notifications')
@@ -421,6 +447,119 @@ async function aiOg() {
               <Button type="button" variant="outline" size="sm" @click="field.handleChange([...field.state.value, { until: undefined, url: '' }])">
                 <Plus class="mr-2 h-4 w-4" /> {{ $t('links.form.add_schedule_entry') }}
               </Button>
+            </div>
+          </props.form.Field>
+        </FieldGroup>
+      </AccordionContent>
+    </AccordionItem>
+
+    <AccordionItem value="geo_restrictions">
+      <AccordionTrigger :class="accordionTriggerClass">
+        {{ $t('links.form.geo_restrictions') }}
+      </AccordionTrigger>
+      <AccordionContent class="px-1">
+        <FieldGroup>
+          <props.form.Field v-slot="{ field }" name="allowedCountries">
+            <div class="space-y-2">
+              <FieldDescription class="text-xs">
+                {{ $t('links.form.geo_restrictions_description') }}
+              </FieldDescription>
+              <div
+                v-for="(item, i) in field.state.value" :key="i" class="
+                  flex flex-col gap-2
+                  sm:flex-row sm:items-start
+                "
+              >
+                <Field class="flex-1">
+                  <DashboardLinksEditorCountrySelect
+                    :model-value="item"
+                    :placeholder="$t('links.form.select_country')"
+                    :search-placeholder="$t('links.form.search_country')"
+                    :empty-text="$t('links.form.no_country_found')"
+                    @update:model-value="field.handleChange(updateAllowedCountry(field.state.value, i, $event))"
+                  />
+                </Field>
+                <Button type="button" variant="ghost" size="icon" @click="field.handleChange(removeAllowedCountry(field.state.value, i))">
+                  <Trash2 class="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </div>
+              <Button type="button" variant="outline" size="sm" @click="field.handleChange([...field.state.value, ''])">
+                <Plus class="mr-2 h-4 w-4" /> {{ $t('links.form.add_allowed_country') }}
+              </Button>
+            </div>
+          </props.form.Field>
+        </FieldGroup>
+      </AccordionContent>
+    </AccordionItem>
+
+    <AccordionItem value="active_hours">
+      <AccordionTrigger :class="accordionTriggerClass">
+        {{ $t('links.form.active_hours') }}
+      </AccordionTrigger>
+      <AccordionContent class="px-1">
+        <FieldGroup>
+          <props.form.Field v-slot="{ field }" name="activeHours">
+            <div class="space-y-2">
+              <FieldDescription class="text-xs">
+                {{ $t('links.form.active_hours_description') }}
+              </FieldDescription>
+              <div
+                class="
+                  flex flex-col gap-2
+                  sm:flex-row sm:items-start
+                "
+              >
+                <Field
+                  class="
+                    w-full
+                    sm:w-32
+                  "
+                >
+                  <FieldLabel class="text-xs">
+                    {{ $t('links.form.active_hours_start') }}
+                  </FieldLabel>
+                  <Input
+                    type="time"
+                    :model-value="field.state.value.start"
+                    :aria-label="$t('links.form.active_hours_start')"
+                    @input="field.handleChange({ ...field.state.value, start: ($event.target as HTMLInputElement).value, tz: field.state.value.tz || getTimeZone() })"
+                  />
+                </Field>
+                <Field
+                  class="
+                    w-full
+                    sm:w-32
+                  "
+                >
+                  <FieldLabel class="text-xs">
+                    {{ $t('links.form.active_hours_end') }}
+                  </FieldLabel>
+                  <Input
+                    type="time"
+                    :model-value="field.state.value.end"
+                    :aria-label="$t('links.form.active_hours_end')"
+                    @input="field.handleChange({ ...field.state.value, end: ($event.target as HTMLInputElement).value, tz: field.state.value.tz || getTimeZone() })"
+                  />
+                </Field>
+                <Field class="flex-1">
+                  <FieldLabel class="text-xs">
+                    {{ $t('links.form.active_hours_tz') }}
+                  </FieldLabel>
+                  <Input
+                    :model-value="field.state.value.tz"
+                    placeholder="America/Denver"
+                    :aria-label="$t('links.form.active_hours_tz')"
+                    @input="field.handleChange({ ...field.state.value, tz: ($event.target as HTMLInputElement).value })"
+                  />
+                </Field>
+              </div>
+              <FieldDescription
+                v-if="isPartialWindow(field.state.value)" class="
+                  text-xs text-destructive
+                "
+              >
+                {{ $t('links.form.active_hours_incomplete') }}
+              </FieldDescription>
             </div>
           </props.form.Field>
         </FieldGroup>

@@ -259,6 +259,15 @@
       "schedule_until": "Cho đến",
       "schedule_url": "URL đích",
       "add_schedule_entry": "Thêm đích đến theo lịch",
+      "geo_restrictions": "Giới hạn khu vực",
+      "geo_restrictions_description": "Chỉ khách truy cập ở các quốc gia này mới mở được liên kết. Để trống nếu không giới hạn.",
+      "add_allowed_country": "Thêm quốc gia",
+      "active_hours": "Giờ hoạt động",
+      "active_hours_description": "Liên kết chỉ hoạt động trong khung giờ hằng ngày này. Để trống để luôn hoạt động.",
+      "active_hours_start": "Bắt đầu",
+      "active_hours_end": "Kết thúc",
+      "active_hours_tz": "Múi giờ",
+      "active_hours_incomplete": "Hãy đặt giờ bắt đầu, kết thúc và múi giờ — khung giờ chưa đầy đủ sẽ không được lưu.",
       "country_code": "Mã quốc gia (ví dụ: VN)",
       "select_country": "Chọn quốc gia",
       "search_country": "Tìm quốc gia...",
@@ -330,7 +339,8 @@
     "reset_success": "Đặt lại liên kết thành công",
     "reset_failed": "Đặt lại liên kết thất bại",
     "notifications_on": "Đã bật thông báo",
-    "scheduled_destinations": "Đích đến theo lịch"
+    "scheduled_destinations": "Đích đến theo lịch",
+    "access_restricted": "Truy cập bị giới hạn"
   },
   "check": {
     "title": "Link Check",

@@ -10,13 +10,13 @@ function escapeHtml(value: string): string {
     .replace(/"/g, '&quot;')
 }
 
-function renderExpiredPage(): string {
+function renderExpiredPage(title = 'Link Expired', message = 'This link has reached its limit and is no longer available.'): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Link Expired</title>
+  <title>${title}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -40,11 +40,18 @@ function renderExpiredPage(): string {
 </head>
 <body>
   <div class="container">
-    <h1>Link Expired</h1>
-    <p>This link has reached its limit and is no longer available.</p>
+    <h1>${title}</h1>
+    <p>${message}</p>
   </div>
 </body>
 </html>`
+}
+
+// Visitor-facing block pages are English-only, matching renderExpiredPage.
+function renderFencedPage(reason: FenceReason): string {
+  return reason === 'geo'
+    ? renderExpiredPage('Not Available Here', 'This link isn\'t available in your region.')
+    : renderExpiredPage('Outside Active Hours', 'This link is only active during certain hours. Please try again later.')
 }
 
 function renderTextPage(link: Link): string {
@@ -320,6 +327,16 @@ export default eventHandler(async (event) => {
         return sendNoStoreHtml(renderCheckinPage(link, batchName, link.claimedAt ? 'used' : 'valid'))
       }
 
+      // --- Access fences (applies to redirect and text links) ---
+      // Must stay above the hit-limit gate, and therefore above the hit-count
+      // increment below it: a blocked visitor must not burn a hit, and should
+      // not learn whether the link is expired.
+      const fenceReason = evaluateFence(link, event.context.cloudflare?.request?.cf?.country, Date.now())
+      if (fenceReason) {
+        setResponseStatus(event, 403)
+        return sendNoStoreHtml(renderFencedPage(fenceReason))
+      }
+
       // --- Hit limit + self-destruct handling (applies to redirect and text links) ---
       if (link.maxHits !== undefined && (link.hitCount || 0) >= link.maxHits) {
         setResponseStatus(event, 410)
@@ -427,6 +444,12 @@ export default eventHandler(async (event) => {
 
       if (link.notifyUrl)
         queueScanNotification(event, link)
+
+      // A fenced link's decision depends on when and where the visitor is, so
+      // its redirect must never be cached: a browser replaying a cached hit
+      // would skip the worker entirely and walk straight past the fence.
+      if (link.allowedCountries?.length || link.activeHours)
+        setHeader(event, 'Cache-Control', 'no-store')
 
       if (deviceRedirectUrl) {
         return sendRedirect(event, finalTargetUrl, +redirectStatusCode)

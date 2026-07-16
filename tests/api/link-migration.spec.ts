@@ -179,4 +179,36 @@ describe.sequential('/api/link/import', () => {
     const response = await postJson('/api/link/import', {}, false)
     expect(response.status).toBe(401)
   })
+
+  it('rejects an imported link combining variants with geo routing', async () => {
+    const importPayload = {
+      version: '1.0',
+      links: [{
+        slug: 'ab-import-conflict',
+        url: 'https://example.com/base',
+        variants: [{ url: 'https://example.com/a', weight: 1 }, { url: 'https://example.com/b', weight: 1 }],
+        geo: { DE: 'https://example.com/de' },
+      }],
+    }
+
+    const response = await postJson('/api/link/import', importPayload)
+    expect(response.status).toBe(400)
+  })
+
+  it('imports a link with valid variants and no conflicting field', async () => {
+    const importPayload = {
+      version: '1.0',
+      links: [{
+        slug: `ab-import-ok-${crypto.randomUUID()}`,
+        url: 'https://example.com/base',
+        variants: [{ url: 'https://example.com/a', weight: 1 }, { url: 'https://example.com/b', weight: 1 }],
+      }],
+    }
+
+    const response = await postJson('/api/link/import', importPayload)
+    expect(response.status).toBe(200)
+
+    const data: ImportResult = await response.json()
+    expect(data.success).toBe(1)
+  })
 })

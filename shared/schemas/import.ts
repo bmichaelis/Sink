@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { LinkSchema } from './link'
+import { LinkSchema, refineLinkVariants } from './link'
 
 // Import uses LinkSchema but:
 // - Removes defaults (id, slug, createdAt, updatedAt have defaults in LinkSchema)
@@ -12,6 +12,10 @@ const ImportLinkSchema = LinkSchema
     id: z.string().trim().max(26).optional(),
     expiration: z.number().int().safe().optional(),
   })
+  // Import bypasses create/edit, so it must enforce the same split-link
+  // exclusion — otherwise a bulk import could persist variants alongside
+  // geo/schedule/device routing and silently corrupt A/B analytics.
+  .superRefine(refineLinkVariants)
 
 export const ImportDataSchema = z.object({
   version: z.string(),
